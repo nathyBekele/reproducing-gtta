@@ -56,7 +56,7 @@
 <main>
   <div class="intro">
     <h1>SA Inspector <span class="pill live" style="vertical-align:4px">live</span></h1>
-    <p><span class="term" data-tipkey="sa">Syntactic Alignment (SA)</span> adds a small learned vector δ to a model's last layer, trained for a step or two on the prompt, before the model answers. This page runs it live on a GPU: pick a task or paste your own text, press <b>Run SA</b>, and see two things for yourself: with the released code, SA's step gets smaller the longer the prompt is, and the words it boosts are mostly the prompt's most common ones, like punctuation and repeated phrases.</p>
+    <p><span class="term" data-tipkey="sa">Syntactic Alignment (SA)</span> adds a small learned vector δ to a model's last layer, trained for a step or two on the prompt, before the model answers. This page runs it live<span id="hwword"> on a GPU</span>: pick a task or paste your own text, press <b>Run SA</b>, and see two things for yourself: with the released code, SA's step gets smaller the longer the prompt is, and the words it boosts are mostly the prompt's most common ones, like punctuation and repeated phrases.</p>
   </div>
 
   <div class="layout">
@@ -158,9 +158,10 @@
   const models = cfg.models || [];
   for (const m of models) $("model").append(el("option", { value: m.id }, m.label));
   window.enhanceSelect($("model")); window.enhanceSelect($("lr")); window.enhanceSelect($("steps"));
+  if (cfg.backend === "local") $("hwword").textContent = " on a small model (free CPU)";
   if (!models.length) { $("backendnote").textContent = "The live backend isn't configured on this server."; $("runbtn").disabled = true; }
   else $("backendnote").textContent = cfg.backend === "local"
-    ? "The model runs on a shared CPU, so each run takes about a minute."
+    ? "The model runs on a shared CPU, so each run takes 20–60 seconds."
     : "The model runs on a GPU that starts automatically when this page opens; once it is ready, each run takes a few seconds.";
 
   function seg(box, opts, get, set) {
