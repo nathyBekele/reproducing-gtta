@@ -8,7 +8,7 @@ sdk_version: 6.30.0
 app_file: app.py
 pinned: false
 license: mit
-short_description: Reproducing GTTA (ICLR 2026): results, live SA, DG rules
+short_description: "Reproducing GTTA (ICLR 2026): results, live SA, DG rules"
 ---
 
 # Reproducing GTTA
