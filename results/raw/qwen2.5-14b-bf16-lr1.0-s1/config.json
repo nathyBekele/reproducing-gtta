@@ -1,0 +1,51 @@
+{
+  "engine": "torch",
+  "model": "Qwen/Qwen2.5-14B-Instruct",
+  "tied": false,
+  "d": 5120,
+  "vocab_size": 152064,
+  "device": "cuda",
+  "lr": 1.0,
+  "steps": 1,
+  "dtype": "torch.bfloat16",
+  "variants": {
+    "sa_paper": {
+      "mode": "code",
+      "mask_user": false
+    },
+    "sa_code_mask": {
+      "mode": "code",
+      "mask_user": true
+    },
+    "sa_exact": {
+      "mode": "exact",
+      "mask_user": false
+    }
+  },
+  "adam": {
+    "beta1": 0.9,
+    "beta2": 0.95,
+    "eps": 1e-06,
+    "weight_decay": 1e-05
+  },
+  "alpha_grid": [
+    0.25,
+    0.5,
+    1.0,
+    1.5,
+    2.0,
+    3.0,
+    4.0,
+    6.0
+  ],
+  "random_seeds": [
+    0,
+    1,
+    2
+  ],
+  "k": 30,
+  "data_commit": "24ba3040d3131ca49367ec12898e2150eb31aa5d",
+  "model_load_seconds": 59.2,
+  "tag": "qwen2.5-14b-bf16-lr1.0-s1",
+  "gpu": "H100"
+}

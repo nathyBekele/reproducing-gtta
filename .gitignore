@@ -1,0 +1,34 @@
+# ---- Python / tooling ----
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.DS_Store
+models/
+
+# ---- secrets (never commit) ----
+space/.secrets.local
+*.local
+.env
+.env.*
+
+# ---- private working notes: kept locally, not published ----
+SEED_PLAN.md
+CLAUDE.md
+AGENTS.md
+predictions.md
+notes/private/
+demo/
+
+# ---- generated Space build (recreate with scripts/build_space.py) ----
+space/static/
+space/sa_live.py
+space/data/
+
+# ---- development / test runs: kept locally, not part of the reported results ----
+results/raw/smoke-1.5b/
+results/raw/qwen2.5-1.5b/
+results/raw/qwen2.5-1.5b-gpu-test/
+results/dg/dg-1.5b-test/
+results/sa_agent/sa-agent-1.5b-test/
+results/sa_agent/sa-agent-14b-speedtest/

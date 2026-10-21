@@ -1,0 +1,9 @@
+gradio==6.30.0
+huggingface-hub==2.2.0
+mlx==0.32.4
+mlx-lm==0.32.2
+numpy==2.5.4
+pandas==3.0.6
+pytest==9.1.1
+torch==2.14.1
+transformers==5.20.2

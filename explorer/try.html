@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SA Inspector (live) · Reproducing GTTA</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="site.css">
+<script src="config.js"></script>
+<script src="site.js"></script>
+<style>
+.layout { display: grid; grid-template-columns: minmax(340px, 400px) 1fr; gap: 20px; align-items: start; }
+@media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+.left { padding: 14px; }
+.howto { font-size: 12px; color: var(--muted); border-top: 1px solid var(--rule); margin-top: 16px; padding-top: 10px; }
+/* desktop: app layout. Header, intro, inputs and footer stay put; only the results column scrolls. */
+@media (min-width: 901px) {
+  body.app { height: 100vh; overflow: hidden; padding-bottom: 0; }
+  body.app main { height: calc(100vh - var(--top-h, 49px) - var(--foot-h, 38px)); display: flex; flex-direction: column; padding-bottom: 12px; }
+  body.app .layout { flex: 1; min-height: 0; align-items: stretch; }
+  body.app .left { height: 100%; overflow: auto; }
+  body.app .right { height: 100%; overflow: auto; padding-right: 6px; scrollbar-gutter: stable; }
+}
+.left .block { padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid var(--rule); }
+.left .block:last-child { border-bottom: 0; margin-bottom: 0; padding-bottom: 0; }
+.blocktitle { font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-bottom: 8px; }
+.settings { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; }
+.settings .wide { grid-column: 1 / -1; }
+.request { font-size: 13px; margin: 8px 0 6px; color: var(--ink); }
+.gold { font: 11.5px/1.45 "IBM Plex Mono", Menlo, monospace; background: var(--panel); border: 1px solid var(--rule); padding: 6px 8px; border-radius: var(--radius); white-space: pre-wrap; word-break: break-word; }
+.gpustate { font-size: 12px; font-weight: 500; margin-left: 6px; text-transform: none; letter-spacing: 0; }
+.gpustate.ready { color: var(--good); }
+.gpustate.wait { color: var(--muted); }
+.status { font-size: 12.5px; color: var(--ink-2); min-height: 18px; margin-top: 8px; }
+.status.error { color: var(--bad); }
+.runrow { display: flex; gap: 10px; align-items: center; }
+.runrow .btn { flex: 1; justify-content: center; }
+.intro { margin-bottom: 14px; }
+.intro p { color: var(--ink-2); margin: 0; }
+.empty { padding: 18px; color: var(--ink-2); font-size: 13.5px; }
+.empty ol { margin: 6px 0 0; padding-left: 18px; }
+.empty li { margin-bottom: 6px; }
+.right .block { margin-bottom: 16px; }
+.gen { font: 12px/1.45 "IBM Plex Mono", Menlo, monospace; background: var(--panel); border: 1px solid var(--rule); padding: 8px; border-radius: var(--radius); white-space: pre-wrap; word-break: break-word; min-height: 40px; }
+.genlabel { font-size: 12px; color: var(--muted); margin-bottom: 3px; font-weight: 500; }
+</style>
+</head>
+<body class="app">
+<div class="topbar"><div class="in">
+  <a class="brand" href="./" aria-label="Reproducing GTTA, home"><svg class="logo" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="6" fill="var(--accent)"/><path d="M17.6 9.4A6.2 6.2 0 1 0 18.2 13.2" fill="none" stroke="var(--on-accent)" stroke-width="2.2" stroke-linecap="round"/><path d="M18.4 5.4v4.3h-4.3" fill="none" stroke="var(--on-accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="name">Reproducing GTTA</span></a>
+  <nav class="nav" aria-label="Pages"><a href="./">Results</a><a href="try" aria-current="page">SA Inspector<span class="pill live" data-tip="Runs the model for you while you wait."><i></i>live</span></a><a href="dg">DG Inspector<span class="pill" data-tip="Pre-computed: everything shown comes from my saved runs.">saved runs</span></a></nav>
+  <span class="sp"></span>
+  <div class="tb-actions"><a class="btn report-btn" href="report.pdf" data-tip="Open the 2-page report"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg><span>Report</span></a></div>
+</div></div>
+
+<main>
+  <div class="intro">
+    <h1>SA Inspector <span class="pill live" style="vertical-align:4px">live</span></h1>
+    <p><span class="term" data-tipkey="sa">Syntactic Alignment (SA)</span> adds a small learned vector δ to a model's last layer, trained for a step or two on the prompt, before the model answers. This page runs it live on a GPU: pick a task or paste your own text, press <b>Run SA</b>, and see two things for yourself: with the released code, SA's step gets smaller the longer the prompt is, and the words it boosts are mostly the prompt's most common ones, like punctuation and repeated phrases.</p>
+  </div>
+
+  <div class="layout">
+    <!-- inputs -->
+    <aside class="panel left" aria-label="Inputs and settings">
+      <div class="block">
+        <div class="blocktitle">Input</div>
+        <span class="seg" id="srcseg" role="group" aria-label="Input source"></span>
+        <div id="src-task" style="margin-top:10px">
+          <label class="field"><span class="label"><span class="term" data-tipkey="task">BFCLv3 task</span> · the paper's 200-task split</span><select class="select" id="taskpick" aria-label="BFCL task"></select></label>
+          <p class="request" id="taskreq"></p>
+          <div class="field"><span class="label"><span class="term" data-tipkey="gold">Correct first call</span> (scored)</span><div class="gold" id="taskgold"></div></div>
+          <details><summary>Show the full prompt SA trains on</summary><textarea id="taskprompt" rows="8" readonly></textarea></details>
+        </div>
+        <div id="src-own" class="hidden" style="margin-top:10px">
+          <label class="field"><span class="label">Context SA trains on</span><textarea id="ownprompt" rows="7" placeholder="Tool docs and a request, a chat transcript, an article… Longer text shows the shrinking step more clearly."></textarea></label>
+          <label class="field" style="margin-top:8px"><span class="label">Expected answer (optional, scored)</span><textarea id="ownanswer" rows="2" placeholder="[cd(folder='document'), mkdir(dir_name='temp')]"></textarea></label>
+          <div style="margin-top:8px"><button class="btn" id="fillexample" type="button">Fill a short example</button></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="blocktitle">Settings</div>
+        <div class="settings">
+          <label class="field wide"><span class="label"><span class="term" data-tipkey="model">Model</span> <span id="gpustate" class="gpustate"></span></span><select class="select" id="model" aria-label="Model"></select></label>
+          <div class="field wide"><span class="label"><span class="term" data-tipkey="gradient">Gradient</span></span><span class="seg" id="varseg" role="group" aria-label="Gradient variant"></span></div>
+          <label class="field"><span class="label"><span class="term" data-tipkey="lr">Learning rate</span></span><select class="select" id="lr" aria-label="Learning rate"><option value="0.01">0.01</option><option value="0.1" selected>0.1 · paper default</option><option value="1">1.0 · paper's best (14B)</option></select></label>
+          <label class="field"><span class="label"><span class="term" data-tipkey="steps">Adam steps</span></span><select class="select" id="steps" aria-label="Adam steps"><option value="1" selected>1 · paper default</option><option value="2">2</option><option value="3">3 · paper's best (14B)</option></select></label>
+          <label class="check wide"><input type="checkbox" id="gen"> Also generate a reply with and without SA</label>
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="runrow"><button class="btn primary lg" id="runbtn">Run SA</button></div>
+        <div class="status" id="status" role="status" aria-live="polite"></div>
+        <p class="small muted" id="backendnote" style="margin:6px 0 0"></p>
+      </div>
+    </aside>
+
+    <!-- results -->
+    <section class="right" aria-label="Results">
+      <div class="panel empty" id="empty">
+        <b>Press Run SA to see</b>
+        <ol>
+          <li><b>How big SA's step is</b> when it reads only the first part of the prompt, at several lengths. With the exact gradient the step stays about the same; with the released code it gets smaller as the prompt grows.</li>
+          <li><b>Which words SA boosts most</b>, and whether they appear in the correct answer.</li>
+          <li><b>How each word of the correct answer</b> becomes more or less likely.</li>
+        </ol>
+        <p class="small muted" style="margin:8px 0 0">Try switching between <b>Released</b> and <b>Exact</b>, or running the same text short and long. Hover any underlined term for a plain explanation.</p>
+      </div>
+
+      <div id="results" class="hidden">
+        <div class="block"><div class="stats" id="tiles"></div></div>
+
+        <div class="block panel">
+          <h3><span class="term" data-tipkey="curve">Size of SA's first step if it sees only the first L tokens of this prompt</span></h3>
+          <div class="legend" id="curvelegend"></div>
+          <div class="chartwrap" id="curvewrap"><svg id="curve" role="img" aria-label="Step size versus context length"></svg><div class="tip" id="curvetip"></div></div>
+          <details><summary>Table view</summary><div class="scrollbox"><table class="t" id="curvetable"></table></div></details>
+        </div>
+
+        <div class="grid2 block">
+          <div class="panel">
+            <h3>Tokens δ pushes up most <span class="muted small term" style="font-weight:400" data-tipkey="b">(b = δ·Wᵀ)</span></h3>
+            <table class="t bars" id="topbars"></table>
+            <p class="small muted" style="margin:6px 0 0">␣ space · ⏎ newline · dark bar = also in the expected answer · "not in prompt" = a token the prompt doesn't contain</p>
+          </div>
+          <div class="panel" id="anscol">
+            <h3><span class="term" data-tipkey="anslp">Expected answer: change in each token's log-probability</span></h3>
+            <div class="toks" id="anstoks"></div>
+            <div class="scale" id="ansscale"></div>
+            <p class="small" id="ansmean" style="margin:8px 0 0"></p>
+          </div>
+        </div>
+
+        <div id="genbox" class="hidden block panel">
+          <h3>Greedy reply, without and with SA</h3>
+          <div class="grid2"><div><div class="genlabel">Without SA</div><div class="gen" id="gen0"></div></div><div><div class="genlabel">With SA</div><div class="gen" id="gen1"></div></div></div>
+        </div>
+      </div>
+      <p class="howto">How SA is computed here: as in the GTTA code (<a href="https://github.com/r2llab/GTTA" target="_blank" rel="noopener">r2llab/GTTA</a>, commit 24ba304). δ is added after the model's final layer norm and trained with Adam (β 0.9 / 0.95, ε 10⁻⁶, weight decay 10⁻⁵) on the next-token loss of the prompt. Runs are rate-limited.</p>
+    </section>
+  </div>
+
+</main>
+
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const el = (tag, attrs, text) => { const e = document.createElement(tag); for (const k in (attrs || {})) e.setAttribute(k, attrs[k]); if (text != null) e.textContent = text; return e; };
+  const showTok = (s) => s.replace(/\n/g, "⏎").replace(/ /g, "␣");
+  const fmt = (x, d = 3) => (x >= 0 ? "+" : "") + x.toFixed(d);
+  const VAR = { paper: { label: "released code", c: "--s-paper", dash: false }, mask: { label: "released code + user mask", c: "--s-mask", dash: true }, exact: { label: "exact gradient", c: "--s-exact", dash: false } };
+  const cfg = window.SITE_CONFIG || { models: [], backend: "?" };
+  let source = "task", variant = "paper", tasks = [], curTask = null, last = null;
+
+  // ---- models + backend note ----
+  const models = cfg.models || [];
+  for (const m of models) $("model").append(el("option", { value: m.id }, m.label));
+  window.enhanceSelect($("model")); window.enhanceSelect($("lr")); window.enhanceSelect($("steps"));
+  if (!models.length) { $("backendnote").textContent = "The live backend isn't configured on this server."; $("runbtn").disabled = true; }
+  else $("backendnote").textContent = cfg.backend === "local"
+    ? "The model runs on a shared CPU, so each run takes about a minute."
+    : "The model runs on a GPU that starts automatically when this page opens; once it is ready, each run takes a few seconds.";
+
+  function seg(box, opts, get, set) {
+    box.innerHTML = "";
+    for (const [k, label, tip] of opts) {
+      const b = el("button", { type: "button", "aria-pressed": String(get() === k) }, label);
+      if (tip) b.setAttribute("data-tip", tip);
+      b.onclick = () => { set(k); seg(box, opts, get, set); };
+      box.append(b);
+    }
+  }
+  seg($("srcseg"), [["task", "BFCLv3 task"], ["own", "Your own text"]], () => source, (k) => {
+    source = k; $("src-task").classList.toggle("hidden", k !== "task"); $("src-own").classList.toggle("hidden", k !== "own");
+  });
+  const TIPS = window.TIPS;
+  seg($("varseg"), [["paper", "Released", TIPS.released], ["mask", "Released + mask", TIPS.mask], ["exact", "Exact", TIPS.exact]], () => variant, (k) => { variant = k; });
+
+  $("fillexample").onclick = () => {
+    $("ownprompt").value = "<|im_start|>system\nYou can call these functions: ls(a: bool), cd(folder: str), mkdir(dir_name: str), mv(source: str, destination: str). Reply only with function calls in the form [func(arg=value)].<|im_end|>\n<|im_start|>user\nMove 'final_report.pdf' within the document directory to a new 'temp' directory inside document.<|im_end|>\n<|im_start|>assistant\n";
+    $("ownanswer").value = "[cd(folder='document'), mkdir(dir_name='temp'), mv(source='final_report.pdf', destination='temp')]";
+  };
+
+  // ---- tasks ----
+  async function loadTasks() {
+    try {
+      tasks = await (await fetch("api/tasks")).json();
+      for (const t of tasks) { const o = el("option", { value: t.id }, "Task " + t.id.replace("multi_turn_base_", "#") + " · " + t.classes.join(", ")); o.dataset.sub = t.request; $("taskpick").append(o); }
+      window.enhanceSelect($("taskpick"), { search: true, wide: true, placeholder: "Search by number, tool or request…" });
+      $("taskpick").onchange = () => pickTask($("taskpick").value);
+      if (tasks.length) pickTask(tasks[0].id);
+    } catch (e) { $("taskreq").textContent = "Couldn't load the task list."; }
+  }
+  async function pickTask(id) {
+    const t = await (await fetch("api/task/" + encodeURIComponent(id))).json();
+    curTask = t;
+    $("taskreq").textContent = "“" + t.request + "”";
+    $("taskgold").textContent = t.answer;
+    $("taskprompt").value = t.prompt;
+  }
+  loadTasks();
+
+  // ---- jobs: submit, then poll ----
+  const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+  async function poll(job, onTick, maxMs) {
+    const t0 = Date.now();
+    while (Date.now() - t0 < maxMs) {
+      const r = await fetch("api/result/" + encodeURIComponent(job));
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) return { status: "error", detail: j.detail || ("Error " + r.status) };
+      if (j.status !== "running") return j;
+      if (onTick) onTick(Date.now() - t0);
+      await sleep(2000);
+    }
+    return { status: "error", detail: "Timed out. Please try again." };
+  }
+
+  // ---- start the model as soon as the page opens (and when the model changes) ----
+  const gpu = {};
+  function showGpu() {
+    const st = gpu[$("model").value], g = $("gpustate");
+    const word = cfg.backend === "local" ? "model" : "GPU";
+    g.className = "gpustate " + (st === "ready" ? "ready" : "wait");
+    g.textContent = st === "ready" ? "● " + word + " ready" : st === "waking" ? "○ " + word + " starting…" : st === "error" ? "○ " + word + " unavailable; a run will retry" : "";
+  }
+  async function wake(model) {
+    if (!model || gpu[model] === "waking" || gpu[model] === "ready") return;
+    gpu[model] = "waking"; showGpu();
+    try {
+      const r = await fetch("api/warm", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ model }) });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.detail || "warm failed");
+      const res = await poll(j.job, null, 6 * 60 * 1000);
+      gpu[model] = res.status === "done" ? "ready" : "error";
+    } catch (e) { gpu[model] = "error"; }
+    showGpu();
+    if (gpu[model] === "ready") setTimeout(() => { if (gpu[model] === "ready") { gpu[model] = undefined; showGpu(); } }, 150000);
+  }
+  $("model").onchange = () => { showGpu(); wake($("model").value); };
+  if (models.length) wake($("model").value);
+
+  // ---- run ----
+  $("runbtn").onclick = async () => {
+    const prompt = source === "task" ? (curTask && curTask.prompt) : $("ownprompt").value;
+    const answer = source === "task" ? (curTask && curTask.answer) : $("ownanswer").value;
+    if (!prompt || prompt.trim().length < 20) { setStatus("Please enter a longer prompt.", true); return; }
+    const body = { prompt, answer, variant, lr: +$("lr").value, steps: +$("steps").value, generate: $("gen").checked, model: $("model").value };
+    $("runbtn").disabled = true;
+    const t0 = Date.now();
+    try { window.trackDemoAction("▶️ Ran SA (" + (source === "task" ? curTask.id : "own text, " + prompt.length + " chars") + ", " + VAR[variant].label + ", lr " + body.lr + "×" + body.steps + ", " + body.model + ")"); if (window.clarity) window.clarity("event", "ran_sa_demo"); } catch (e) {}
+    try {
+      setStatus("Submitting…");
+      const r = await fetch("api/run", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) { setStatus(j.detail || ("Error " + r.status), true); return; }
+      const res = await poll(j.job, (ms) => {
+        const waking = gpu[body.model] !== "ready";
+        setStatus("Running… " + Math.round(ms / 1000) + " s" + (waking && ms > 5000 ? " (the GPU is still starting; this happens only after a few idle minutes)" : ""));
+      }, 8 * 60 * 1000);
+      if (res.status !== "done") { setStatus(res.detail || "Something went wrong. Please try again.", true); return; }
+      gpu[body.model] = "ready"; showGpu();
+      last = res.result; render(res.result);
+      setStatus("Done in " + Math.round((Date.now() - t0) / 1000) + " s · " + res.result.model.split("/").pop() + " on " + res.result.device.toUpperCase());
+    } catch (e) { setStatus("Network error. Please try again.", true); }
+    finally { $("runbtn").disabled = false; }
+  };
+  function setStatus(msg, err) { const s = $("status"); s.textContent = msg; s.classList.toggle("error", !!err); }
+
+  // ---- render ----
+  function mix(a, b, t) {
+    const p = (h) => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16)); const A = p(a), B = p(b);
+    return "rgb(" + A.map((v, i) => Math.round(v + (B[i] - v) * t)).join(",") + ")";
+  }
+  function render(j) {
+    $("empty").classList.add("hidden"); $("results").classList.remove("hidden");
+    const tiles = $("tiles"); tiles.innerHTML = "";
+    const tile = (k, v, n, tip) => { const d = el("div", { class: "stat" }), kk = el("div", { class: "k" }, k); if (tip) { kk.setAttribute("data-tip", tip); kk.classList.add("term"); } d.append(kk, el("div", { class: "v" }, v), el("div", { class: "n" }, n || "")); tiles.append(d); };
+    const full = j.curve[j.curve.length - 1], ratio = full.exact / full.paper;
+    tile("‖δ‖ · " + VAR[j.variant].label, j.delta_norm.toFixed(j.delta_norm < 1 ? 4 : 2), "lr " + j.lr + " × " + j.steps + " step(s)", TIPS.delta);
+    tile("gradient below ε", Math.round(100 * j.below_eps) + "%", "ε = 1e-6 · median |g| " + j.grad_median_abs.toExponential(1), TIPS.eps);
+    tile("released vs. exact", ratio < 1.5 ? "≈ same size" : ratio.toFixed(0) + "× smaller", "first step at " + full.L.toLocaleString() + " tokens", TIPS.ratio);
+    if (j.answer) tile("answer log-prob", fmt(j.answer.mean_delta, 4), "mean change per token", TIPS.anslp);
+    tile("prompt loss", j.prompt_loss[0].toFixed(3) + " → " + j.prompt_loss[1].toFixed(3), j.n_prompt_tokens.toLocaleString() + " prompt tokens", TIPS.loss);
+    drawCurve(j.curve);
+    // top tokens
+    const tb = $("topbars"); tb.innerHTML = "";
+    const top = j.top_tokens.filter(x => x.rank === "top").slice(0, 12);
+    const maxb = Math.max(...top.map(x => x.bias));
+    const head = el("thead"), hr = el("tr"); [["token", ""], ["b", "barcell"], ["", "num"]].forEach(([h, c]) => hr.append(el("th", { class: c }, h))); head.append(hr); tb.append(head);
+    const body = el("tbody"); tb.append(body);
+    for (const x of top) {
+      const tr = el("tr"), c1 = el("td", { class: "mono" }, showTok(x.token)), c2 = el("td", { class: "barcell" }), c3 = el("td", { class: "num small" }, x.bias.toFixed(x.bias < 0.1 ? 4 : 3));
+      const bar = el("div", { class: "bar" + (x.in_answer ? "" : " base") }); bar.style.width = (100 * x.bias / maxb) + "%"; c2.append(bar);
+      if (x.in_answer) c1.append(el("span", { class: "badge gold" }, "in answer")); else if (!x.in_prompt) c1.append(el("span", { class: "badge" }, "not in prompt"));
+      tr.append(c1, c2, c3); body.append(tr);
+    }
+    // answer
+    $("anscol").classList.toggle("hidden", !j.answer);
+    if (j.answer) {
+      const box = $("anstoks"); box.innerHTML = "";
+      const SCALE = 0.5;
+      j.answer.tokens.forEach((tok, i) => {
+        const d = j.answer.logprob_sa[i] - j.answer.logprob_none[i], a = Math.min(1, Math.abs(d) / SCALE);
+        const s = el("span", { class: "tok", title: showTok(tok) + "  log p " + j.answer.logprob_none[i].toFixed(3) + " → " + j.answer.logprob_sa[i].toFixed(3) + " (" + fmt(d) + ")" }, showTok(tok));
+        s.style.background = mix(css("--div-mid"), css(d >= 0 ? "--div-pos" : "--div-neg"), a); if (a > 0.55) s.style.color = css("--bg");
+        box.append(s);
+      });
+      const sc = $("ansscale"); sc.innerHTML = "";
+      const ramp = el("span", { class: "ramp" }); ramp.style.background = `linear-gradient(90deg, ${css("--div-neg")}, ${css("--div-mid")}, ${css("--div-pos")})`;
+      sc.append(el("span", {}, "less likely (−0.5)"), ramp, el("span", {}, "more likely (+0.5)"));
+      $("ansmean").textContent = "Mean change per token: " + fmt(j.answer.mean_delta, 4) + " (hover a token for its numbers).";
+    }
+    $("genbox").classList.toggle("hidden", !j.generation);
+    if (j.generation) { $("gen0").textContent = j.generation.none || "(empty)"; $("gen1").textContent = j.generation.sa || "(empty)"; }
+  }
+
+  function drawCurve(curve) {
+    const svg = $("curve"), wrap = $("curvewrap"), tip = $("curvetip");
+    const W = wrap.clientWidth, H = Math.max(220, Math.min(300, W * 0.42));
+    const m = { l: 48, r: W < 520 ? 14 : 150, t: 10, b: 34 };
+    svg.setAttribute("width", W); svg.setAttribute("height", H); svg.innerHTML = "";
+    const ns = "http://www.w3.org/2000/svg", mk = (t, a) => { const e = document.createElementNS(ns, t); for (const k in a) e.setAttribute(k, a[k]); return e; };
+    const Ls = curve.map(c => c.L), vals = curve.flatMap(c => [c.paper, c.mask, c.exact]).filter(v => v > 0);
+    const x0 = Math.log10(Ls[0]), x1 = Math.log10(Ls[Ls.length - 1]) + 1e-9;
+    const y0 = Math.floor(Math.log10(Math.min(...vals))), y1 = Math.ceil(Math.log10(Math.max(...vals)));
+    const X = (v) => m.l + (Math.log10(v) - x0) / (x1 - x0) * (W - m.l - m.r);
+    const Y = (v) => H - m.b - (Math.log10(v) - y0) / (y1 - y0) * (H - m.t - m.b);
+    for (let e = y0; e <= y1; e++) for (const k of [1, 3]) {
+      const v = k * Math.pow(10, e); if (Math.log10(v) > y1) continue;
+      svg.append(mk("line", { x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v), stroke: css("--grid") }));
+      const t = mk("text", { x: m.l - 6, y: Y(v) + 4, "text-anchor": "end" }); t.textContent = v >= 1 ? v : v.toPrecision(1); svg.append(t);
+    }
+    let xt = [8, 16, 32, 64, 128, 256, 512, 1000, 2000, 4000, 8000, 16000].filter(v => v >= Ls[0] && v <= Ls[Ls.length - 1]);
+    if (xt.length < 3) xt = [Ls[0], Ls[Ls.length - 1]];
+    for (const v of xt) { const t = mk("text", { x: X(v), y: H - m.b + 16, "text-anchor": "middle" }); t.textContent = v >= 1000 ? (v / 1000) + "K" : v; svg.append(t); }
+    svg.append(mk("line", { x1: m.l, x2: W - m.r, y1: H - m.b, y2: H - m.b, stroke: css("--axis") }));
+    const xl = mk("text", { x: (m.l + W - m.r) / 2, y: H - 2, "text-anchor": "middle" }); xl.textContent = "tokens of context SA sees (L, log scale)"; svg.append(xl);
+    const yl = mk("text", { x: 11, y: (H - m.b + m.t) / 2, transform: `rotate(-90 11 ${(H - m.b + m.t) / 2})`, "text-anchor": "middle" }); yl.textContent = "‖δ‖ after one step (log)"; svg.append(yl);
+    const lg = $("curvelegend"); lg.innerHTML = "";
+    const lastc = curve[curve.length - 1], labels = [];
+    for (const k of ["exact", "mask", "paper"]) {
+      const col = css(VAR[k].c);
+      svg.append(mk("path", { d: curve.map((c, i) => (i ? "L" : "M") + X(c.L) + "," + Y(c[k])).join(" "), fill: "none", stroke: col, "stroke-width": 2, "stroke-linejoin": "round", "stroke-dasharray": VAR[k].dash ? "6 4" : "none" }));
+      for (const c of curve) svg.append(mk("circle", { cx: X(c.L), cy: Y(c[k]), r: VAR[k].dash ? 2.5 : 3.5, fill: col, stroke: css("--bg"), "stroke-width": 1.5 }));
+      labels.push({ k, y: Y(lastc[k]) + 4 });
+    }
+    if (m.r > 50) {
+      labels.sort((a, b) => a.y - b.y);
+      for (let i = 1; i < labels.length; i++) if (labels[i].y - labels[i - 1].y < 14) labels[i].y = labels[i - 1].y + 14;
+      for (const l of labels) { const t = mk("text", { x: X(lastc.L) + 8, y: l.y }); t.textContent = VAR[l.k].label; t.style.fill = css("--ink-2"); svg.append(t); }
+    }
+    for (const k of ["paper", "mask", "exact"]) {
+      const s = el("span", { "data-tip": TIPS[k === "paper" ? "released" : k] }), key = el("span", { class: "lkey" + (VAR[k].dash ? " dashed" : "") }); key.style.borderColor = css(VAR[k].c);
+      s.append(key, document.createTextNode(VAR[k].label)); lg.append(s);
+    }
+    const cross = mk("line", { y1: m.t, y2: H - m.b, stroke: css("--axis"), "stroke-width": 1, visibility: "hidden" }); svg.append(cross);
+    svg.onpointermove = (e) => {
+      const r = svg.getBoundingClientRect(), mx = e.clientX - r.left;
+      let best = curve[0], bd = Infinity; for (const c of curve) { const d = Math.abs(X(c.L) - mx); if (d < bd) { bd = d; best = c; } }
+      cross.setAttribute("x1", X(best.L)); cross.setAttribute("x2", X(best.L)); cross.setAttribute("visibility", "visible");
+      tip.innerHTML = ""; tip.append(el("div", { class: "small muted" }, "first " + best.L.toLocaleString() + " tokens"));
+      for (const k of ["paper", "mask", "exact"]) {
+        const row = el("div", { class: "r" }), ln = el("span", { class: "ln" }); ln.style.background = css(VAR[k].c);
+        row.append(ln, el("b", {}, best[k].toFixed(best[k] < 1 ? 4 : 2)), el("span", { class: "small muted" }, VAR[k].label + " · " + Math.round(100 * best[k + "_below_eps"]) + "% < ε")); tip.append(row);
+      }
+      tip.style.display = "block"; const tw = tip.offsetWidth; let lx = X(best.L) + 12; if (lx + tw > r.width) lx = X(best.L) - tw - 12;
+      tip.style.left = lx + "px"; tip.style.top = (m.t + 4) + "px";
+    };
+    svg.onpointerleave = () => { tip.style.display = "none"; cross.setAttribute("visibility", "hidden"); };
+    const tb = $("curvetable"); tb.innerHTML = "";
+    const th = el("thead"), hr = el("tr"); ["first L tokens", "released code", "% < ε", "released + mask", "% < ε", "exact gradient", "% < ε"].forEach((h, i) => hr.append(el("th", { class: i ? "num" : "" }, h))); th.append(hr); tb.append(th);
+    const tbody = el("tbody"); tb.append(tbody);
+    for (const c of curve) { const tr = el("tr"); [c.L.toLocaleString(), c.paper.toFixed(4), Math.round(100 * c.paper_below_eps) + "%", c.mask.toFixed(4), Math.round(100 * c.mask_below_eps) + "%", c.exact.toFixed(3), Math.round(100 * c.exact_below_eps) + "%"].forEach((v, i) => tr.append(el("td", { class: i ? "num" : "" }, v))); tbody.append(tr); }
+  }
+  window.addEventListener("resize", () => { if (last) drawCurve(last.curve); });
+  window.addEventListener("themechange", () => { if (last) render(last); });
+})();
+</script>
+</body>
+</html>

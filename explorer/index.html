@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Results · Reproducing GTTA</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="site.css">
+<script src="config.js"></script>
+<script src="site.js"></script>
+<style>
+.hero { display: grid; grid-template-columns: 1fr auto; gap: 8px 24px; align-items: end; margin-bottom: 12px; }
+.hero p { color: var(--ink-2); margin: 0 0 4px; }
+.hero p.paper { color: var(--ink); font-size: 14.5px; }
+.hero .actions { display: flex; gap: 8px; }
+@media (max-width: 760px) { .hero { grid-template-columns: 1fr; } }
+.split { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(240px, 1fr); gap: 18px; align-items: start; }
+@media (max-width: 900px) { .split { grid-template-columns: 1fr; } }
+.side p { font-size: 13px; color: var(--ink-2); }
+.side .kv { display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; font-size: 13px; margin-top: 6px; }
+.side .kv span:nth-child(odd) { color: var(--muted); }
+.side .kv b { font-variant-numeric: tabular-nums; }
+.taskhead { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin-bottom: 10px; }
+.taskhead .select { flex: 1 1 320px; }
+.meta { font-size: 12.5px; color: var(--muted); margin-bottom: 4px; }
+.req { font-size: 14px; margin: 0 0 10px; }
+.minikv { display: grid; grid-template-columns: 1fr auto; font-size: 12.5px; margin-top: 10px; border-top: 1px solid var(--rule); }
+.minikv > * { padding: 4px 0; border-bottom: 1px solid var(--rule); }
+.minikv > span:nth-child(odd) { color: var(--ink-2); }
+.minikv > b { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+.freqcols { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(220px, 1fr); gap: 18px; align-items: start; }
+@media (max-width: 900px) { .freqcols { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="topbar"><div class="in">
+  <a class="brand" href="./" aria-label="Reproducing GTTA, home"><svg class="logo" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="6" fill="var(--accent)"/><path d="M17.6 9.4A6.2 6.2 0 1 0 18.2 13.2" fill="none" stroke="var(--on-accent)" stroke-width="2.2" stroke-linecap="round"/><path d="M18.4 5.4v4.3h-4.3" fill="none" stroke="var(--on-accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="name">Reproducing GTTA</span></a>
+  <nav class="nav" aria-label="Pages"><a href="./" aria-current="page">Results</a><a href="try">SA Inspector<span class="pill live" data-tip="Runs the model for you while you wait."><i></i>live</span></a><a href="dg">DG Inspector<span class="pill" data-tip="Pre-computed: everything shown comes from my saved runs.">saved runs</span></a></nav>
+  <span class="sp"></span>
+  <div class="tb-actions"><a class="btn report-btn" href="report.pdf" data-tip="Open the 2-page report"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg><span>Report</span></a></div>
+</div></div>
+
+<main>
+  <div class="hero">
+    <div>
+      <h1>Reproducing GTTA on BFCLv3</h1>
+      <p class="paper">An independent reproduction of <i>Test-Time Adaptation for LLM Agents via Environment Interaction</i> (GTTA; Chen et al., ICLR 2026).</p>
+      <p>Benchmark: <span id="bench"></span>. Model: <span id="model"></span>. <span class="term" data-tipkey="sa">Syntactic Alignment (SA)</span> adds a learned vector δ to the model's final hidden states, which is the same as adding a fixed score <span class="mono">b = δ·Wᵀ</span> to every vocabulary token. So I can read exactly which tokens it pushes up, and check whether that helps.</p>
+    </div>
+    <div class="actions"><a class="btn primary" href="try" style="text-decoration:none">Open the SA Inspector (live) →</a><a class="btn" href="dg" style="text-decoration:none;color:var(--ink)">DG Inspector</a></div>
+  </div>
+
+  <div class="stats" id="tiles" style="margin-bottom:6px"></div>
+
+  <section class="section">
+    <div class="section-head"><span class="num">01</span><h2>SA's step shrinks as the prompt gets longer</h2></div>
+    <div class="split">
+      <div class="panel">
+        <div class="toolbar" style="justify-content:space-between;margin-bottom:2px">
+          <div class="legend" id="legend1"></div>
+          <label class="check"><input type="checkbox" id="showdg"> also show prompts with DG rules</label>
+        </div>
+        <div class="chartwrap" id="wrap1"><svg id="scatter" role="img" aria-label="Scatter of delta norm versus prompt length"></svg><div class="tip" id="tip"></div></div>
+      </div>
+      <div class="side">
+        <p>Size of δ after one SA step (lr 0.1), one dot per task. The released code averages the gradient over the prompt twice, so every coordinate falls below Adam's ε and the step scales like 1/length. The exact gradient gives a full-size step at every length.</p>
+        <p>With DG rules, prompts are 36% longer and the released step shrinks further.</p>
+        <div class="kv" id="sidekv"></div>
+        <p class="small muted" style="margin-top:8px">Click a dot, or a row in the table below, to open that task.</p>
+      </div>
+    </div>
+    <details><summary>Table view of all 200 tasks</summary><div class="scrollbox"><table class="t" id="alltable"></table></div></details>
+  </section>
+
+  <section class="section" id="task">
+    <div class="section-head"><span class="num">02</span><h2>One task up close</h2></div>
+    <div class="taskhead">
+      <button class="btn icon" id="prev" aria-label="Previous task">←</button>
+      <select class="select" id="pick" aria-label="Choose a task"></select>
+      <button class="btn icon" id="next" aria-label="Next task">→</button>
+      <span class="seg" id="vseg" role="group" aria-label="SA variant"></span>
+    </div>
+    <div class="meta" id="meta"></div>
+    <p class="req" id="req"></p>
+    <div class="grid3">
+      <div class="panel">
+        <h3><span class="term" data-tipkey="gold">Correct first call</span>: change in each token's log-probability</h3>
+        <div class="toks" id="toks"></div>
+        <div class="scale" id="scale"></div>
+        <div class="minikv" id="stats"></div>
+      </div>
+      <div class="panel">
+        <h3>Tokens δ pushes up most <span class="muted small term" style="font-weight:400" data-tipkey="b">(b = δ·Wᵀ)</span></h3>
+        <table class="t bars" id="bars"></table>
+        <p class="small muted" style="margin:6px 0 0">␣ space · ⏎ newline · dark bar = also in the correct call</p>
+      </div>
+      <div class="panel">
+        <h3>Did the agent solve this task?</h3>
+        <table class="t" id="outc"></table>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><span class="num">03</span><h2>Across all 200 tasks: what δ boosts most often</h2></div>
+    <div class="freqcols">
+      <div class="panel">
+        <div class="toolbar" style="margin-bottom:8px"><span class="seg" id="vseg2" role="group" aria-label="SA variant"></span></div>
+        <table class="t bars" id="freq"></table>
+      </div>
+      <div class="side">
+        <p>How many tasks have each token among δ's 15 most-boosted. Frequent prompt text dominates.</p>
+        <p>BFCL appends “Note that the provided function is in Python 3 syntax.” to every function description, so <span class="mono">Note</span> is the most repeated phrase in every prompt.</p>
+        <p class="small muted">Dark bar segment: tasks where the token also appears in the correct call.</p>
+      </div>
+    </div>
+  </section>
+
+  <p class="foot" id="foot"></p>
+</main>
+<script src="data.js"></script>
+<script>
+(function () {
+  const D = window.EXPLORER_DATA, T = D.tasks;
+  const $ = (id) => document.getElementById(id);
+  const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const TIPS = window.TIPS;
+  const VAR = { paper: { label: "released code", short: "Released", c: "--s-paper", tip: TIPS.released }, mask: { label: "released code + user mask", short: "Released + mask", c: "--s-mask", tip: TIPS.mask }, exact: { label: "exact gradient", short: "Exact", c: "--s-exact", tip: TIPS.exact } };
+  const showTok = (s) => s.replace(/\n/g, "⏎").replace(/ /g, "␣");
+  const el = (tag, attrs, text) => { const e = document.createElement(tag); for (const k in (attrs || {})) e.setAttribute(k, attrs[k]); if (text != null) e.textContent = text; return e; };
+  const fmt = (x, d = 3) => (x >= 0 ? "+" : "") + x.toFixed(d);
+  $("bench").textContent = D.benchmark; $("model").textContent = D.model;
+  $("foot").textContent = "Tasks, split and prompts: the original GTTA repository (r2llab/GTTA, commit 24ba304). All results on this page were computed in this reproduction; its code will be linked here once published.";
+
+  // ---- key numbers ----
+  const S = D.sa_agent_summary;
+  const median = (a) => { const s = a.slice().sort((x, y) => x - y), h = s.length >> 1; return s.length % 2 ? s[h] : (s[h - 1] + s[h]) / 2; };
+  const medP = median(T.map(t => t.v.paper.norm)), medE = median(T.map(t => t.v.exact.norm));
+  const saTip = TIPS.sa + " Shown: tasks solved with SA minus without, in the same loop.";
+  const tiles = [
+    ["DG · tasks solved", "17.5 → 21.0%", "+3.5, +3.5, +4.0 in 3 runs · paper 18.5 → 22.0", TIPS.dg + " " + TIPS.dgruns],
+    ["SA · lr 0.1 × 1", fmt(S["sa_paper:0.1:1"].delta, 1) + " pts", "vs. no SA · changed words in " + S["sa_paper:0.1:1"].changed + "/200 tasks", saTip + " The paper's default setting."],
+    ["SA · lr 1.0 × 3", fmt(S["sa_paper:1.0:3"].delta, 1) + " pts", "95% CI [" + S["sa_paper:1.0:3"].ci.map(x => fmt(x, 1)).join(", ") + "]", saTip + " The paper's best setting for Qwen2.5-14B."],
+    ["SA step · released vs. exact", "~" + Math.round(medE / medP) + "× smaller", "median ‖δ‖ " + medP.toFixed(3) + " vs " + medE.toFixed(2), TIPS.ratio + " Median over the 200 prompts."],
+  ];
+  for (const [k, v, n, tip] of tiles) { const d = el("div", { class: "stat" }), kk = el("div", { class: "k term", "data-tip": tip }, k); d.append(kk, el("div", { class: "v" }, v), el("div", { class: "n" }, n)); $("tiles").append(d); }
+  const kv = $("sidekv");
+  [["median ‖δ‖, released code", medP.toFixed(3), TIPS.delta], ["median ‖δ‖, exact gradient", medE.toFixed(2), TIPS.delta], ["gradient below ε (released)", "100%", TIPS.eps], ["Spearman with length", "−0.99", TIPS.spearman]]
+    .forEach(([k, v, tip]) => { kv.append(el("span", { class: "term", "data-tip": tip }, k), el("b", {}, v)); });
+
+  let cur = 0, variant = "paper", variant2 = "exact";
+
+  // ---- scatter ----
+  const svg = $("scatter"), tip = $("tip");
+  let pts = [];
+  function drawScatter() {
+    const W = $("wrap1").clientWidth, H = Math.max(240, Math.min(320, W * 0.48));
+    const m = { l: 48, r: 12, t: 8, b: 34 };
+    svg.setAttribute("width", W); svg.setAttribute("height", H); svg.innerHTML = "";
+    const showDG = $("showdg").checked;
+    const xs = T.flatMap(t => showDG && t.T_dg ? [t.T, t.T_dg] : [t.T]);
+    const x0 = 3000, x1 = Math.ceil(Math.max(...xs) / 1000) * 1000;
+    const y0 = Math.log10(0.03), y1 = Math.log10(20);
+    const X = (v) => m.l + (v - x0) / (x1 - x0) * (W - m.l - m.r);
+    const Y = (v) => H - m.b - (Math.log10(v) - y0) / (y1 - y0) * (H - m.t - m.b);
+    const ns = "http://www.w3.org/2000/svg", mk = (t, a) => { const e = document.createElementNS(ns, t); for (const k in a) e.setAttribute(k, a[k]); return e; };
+    for (const v of [0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10]) {
+      svg.append(mk("line", { x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v), stroke: css("--grid") }));
+      const t = mk("text", { x: m.l - 6, y: Y(v) + 4, "text-anchor": "end" }); t.textContent = v; svg.append(t);
+    }
+    for (let v = x0; v <= x1; v += 1000) { const t = mk("text", { x: X(v), y: H - m.b + 16, "text-anchor": "middle" }); t.textContent = (v / 1000) + "K"; svg.append(t); }
+    svg.append(mk("line", { x1: m.l, x2: W - m.r, y1: H - m.b, y2: H - m.b, stroke: css("--axis") }));
+    const xl = mk("text", { x: (m.l + W - m.r) / 2, y: H - 2, "text-anchor": "middle" }); xl.textContent = "prompt length (tokens)"; svg.append(xl);
+    const yl = mk("text", { x: 11, y: (H - m.b + m.t) / 2, transform: `rotate(-90 11 ${(H - m.b + m.t) / 2})`, "text-anchor": "middle" }); yl.textContent = "‖δ‖ (log scale)"; svg.append(yl);
+    pts = [];
+    for (const k of ["exact", "paper"]) {
+      const col = css(VAR[k].c);
+      T.forEach((t, i) => {
+        const add = (len, norm, dg) => {
+          const px = X(len), py = Y(norm);
+          const shape = dg ? mk("path", { d: `M${px},${py - 4.5} L${px + 4.5},${py + 3.5} L${px - 4.5},${py + 3.5} Z`, fill: "none", stroke: col, "stroke-width": 1.2 })
+                           : mk("circle", { cx: px, cy: py, r: 3.6, fill: col, "fill-opacity": 0.85, stroke: css("--bg"), "stroke-width": 1 });
+          svg.append(shape); pts.push({ px, py, i, k, len, norm, dg });
+        };
+        add(t.T, t.v[k].norm, false);
+        if (showDG && t.T_dg && t.norm_dg) add(t.T_dg, t.norm_dg[k], true);
+      });
+    }
+    const s = T[cur];
+    for (const k of ["exact", "paper"]) svg.append(mk("circle", { cx: X(s.T), cy: Y(s.v[k].norm), r: 7.5, fill: "none", stroke: css("--ink"), "stroke-width": 1.6 }));
+    svg.onpointermove = (e) => {
+      const r = svg.getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top;
+      let best = null, bd = 24 * 24;
+      for (const p of pts) { const d = (p.px - mx) ** 2 + (p.py - my) ** 2; if (d < bd) { bd = d; best = p; } }
+      if (!best) { tip.style.display = "none"; svg.style.cursor = "default"; return; }
+      svg.style.cursor = "pointer";
+      const t = T[best.i]; tip.innerHTML = "";
+      tip.append(el("div", { class: "small muted" }, t.id.replace("multi_turn_base_", "Task #") + (best.dg ? " · with DG rules" : "")));
+      const row = el("div", { class: "r" }); const ln = el("span", { class: "ln" }); ln.style.background = css(VAR[best.k].c);
+      row.append(ln, el("b", {}, best.norm.toFixed(best.norm < 1 ? 3 : 2)), el("span", { class: "small muted" }, "‖δ‖ · " + VAR[best.k].label));
+      tip.append(row, el("div", { class: "small muted" }, best.len.toLocaleString() + " prompt tokens"));
+      tip.style.display = "block";
+      const tw = tip.offsetWidth; let lx = best.px + 14; if (lx + tw > r.width) lx = best.px - tw - 14;
+      tip.style.left = lx + "px"; tip.style.top = Math.max(0, best.py - 20) + "px";
+      svg.onclick = () => { select(best.i); $("task").scrollIntoView({ behavior: "smooth", block: "start" }); };
+    };
+    svg.onpointerleave = () => { tip.style.display = "none"; };
+  }
+  const lg = $("legend1");
+  function drawLegend1() {
+  lg.innerHTML = "";
+  for (const k of ["paper", "exact"]) { const s = el("span", { "data-tip": VAR[k].tip }); const d = el("span", { class: "lkey dot" }); d.style.background = css(VAR[k].c); s.append(d, document.createTextNode(VAR[k].label)); lg.append(s); }
+  { const s = el("span"); const d = el("span", { class: "lkey dot" }); d.style.background = "transparent"; d.style.border = "1.2px solid " + css("--muted"); d.style.borderRadius = "0"; d.style.transform = "rotate(45deg) scale(.8)"; s.append(d, document.createTextNode("with DG rules")); lg.append(s); }
+  }
+  drawLegend1();
+  $("showdg").onchange = drawScatter;
+
+  // ---- table view ----
+  (function () {
+    const tb = $("alltable"), head = el("thead"), hr = el("tr");
+    const gl = "Change in mean log-probability of the correct first call when δ is added (teacher-forced).";
+    [["task", ""], ["split", ""], ["prompt tokens", "num"], ["‖δ‖ released", "num", TIPS.delta], ["‖δ‖ exact", "num", TIPS.delta], ["Δ log-prob, released", "num", gl], ["Δ log-prob, exact", "num", gl], ["no SA", "num", "Solved without SA. " + TIPS.pytorch], ["SA 0.1×1", "num", "Solved with SA (lr 0.1, 1 step). " + TIPS.pytorch], ["SA 1.0×3", "num", "Solved with SA (lr 1.0, 3 steps). " + TIPS.pytorch], ["no adapt. (vLLM)", "num", "Solved without adaptation. " + TIPS.vllm], ["DG (vLLM)", "num", "Solved with DG rules. " + TIPS.vllm]]
+      .forEach(([h, c, tip]) => { const th = el("th", { class: c }, h); if (tip) th.setAttribute("data-tip", tip); hr.append(th); });
+    head.append(hr); tb.append(head);
+    const body = el("tbody"); tb.append(body);
+    const yn = (v) => v == null ? "–" : (v ? "✓" : "·");
+    T.forEach((t, i) => {
+      const s = t.success || {}, tr = el("tr", { class: "clickable" });
+      [t.id.replace("multi_turn_base_", "#"), t.split, t.T.toLocaleString(), t.v.paper.norm.toFixed(3), t.v.exact.norm.toFixed(2), fmt(t.v.paper.d_gold, 4), fmt(t.v.exact.d_gold, 4),
+        yn(s.pt_none), yn(s.sa01), yn(s.sa10), yn(s.vllm_none), yn(s.vllm_dg)].forEach((v, j) => tr.append(el("td", { class: j > 1 ? "num" : "" }, String(v))));
+      tr.onclick = () => { select(i); $("task").scrollIntoView({ behavior: "smooth", block: "start" }); };
+      body.append(tr);
+    });
+  })();
+
+  // ---- task panel ----
+  T.forEach((t, i) => { const o = el("option", { value: i }, t.id.replace("multi_turn_base_", "Task #") + " · " + t.classes.join(", ")); o.dataset.sub = t.request; $("pick").append(o); });
+  window.enhanceSelect($("pick"), { search: true, wide: true, placeholder: "Search by number, tool or request…" });
+  $("pick").onchange = (e) => select(+e.target.value);
+  $("prev").onclick = () => select((cur - 1 + T.length) % T.length);
+  $("next").onclick = () => select((cur + 1) % T.length);
+  function segment(box, getter, setter) {
+    box.innerHTML = "";
+    for (const k of Object.keys(VAR)) {
+      const b = el("button", { type: "button", "aria-pressed": String(getter() === k), "data-tip": VAR[k].tip }, VAR[k].short);
+      b.onclick = () => { setter(k); segment(box, getter, setter); };
+      box.append(b);
+    }
+  }
+  segment($("vseg"), () => variant, (k) => { variant = k; renderTask(); });
+  segment($("vseg2"), () => variant2, (k) => { variant2 = k; renderFreq(); });
+
+  function mix(a, b, t) {
+    const p = (h) => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+    const A = p(a), B = p(b); return "rgb(" + A.map((v, i) => Math.round(v + (B[i] - v) * t)).join(",") + ")";
+  }
+  // Color scale fitted to the task: one task's changes are tiny (often ±0.001), so a fixed ±0.5 would show nothing.
+  // The largest change in this task, rounded up to 1/2/5 × 10^k, sets the ends; the legend always prints it.
+  const niceUp = (x) => { const e = Math.pow(10, Math.floor(Math.log10(x))), m = x / e; return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 5 ? 5 : 10) * e; };
+  const fmtScale = (x) => x >= 0.1 ? x.toFixed(1) : x >= 0.01 ? x.toFixed(2) : x >= 0.001 ? x.toFixed(3) : x.toExponential(0);
+  function renderTask() {
+    const t = T[cur], v = t.v[variant];
+    $("pick").value = cur; if ($("pick")._dd) $("pick")._dd.sync();
+    $("meta").textContent = t.id + " · " + t.split + " split · " + t.classes.join(", ") + " · " + t.T.toLocaleString() + " prompt tokens";
+    $("req").textContent = "“" + t.request + "”";
+    const box = $("toks"); box.innerHTML = "";
+    const SCALE = niceUp(Math.max(1e-4, ...v.tok.map(Math.abs)));
+    t.tokens.forEach((tok, i) => {
+      const d = v.tok[i], a = Math.sqrt(Math.min(1, Math.abs(d) / SCALE));   // square root keeps small changes visible
+      const s = el("span", { class: "tok", title: `${showTok(tok)}  log p ${t.none_lp[i].toFixed(3)} → ${(t.none_lp[i] + d).toFixed(3)} (${fmt(d)})` }, showTok(tok));
+      s.style.background = mix(css("--div-mid"), css(d >= 0 ? "--div-pos" : "--div-neg"), a);
+      if (a > 0.55) s.style.color = css("--bg");
+      box.append(s);
+    });
+    const sc = $("scale"); sc.innerHTML = "";
+    const ramp = el("span", { class: "ramp" }); ramp.style.background = `linear-gradient(90deg, ${css("--div-neg")}, ${css("--div-mid")}, ${css("--div-pos")})`;
+    sc.append(el("span", {}, "less likely (−" + fmtScale(SCALE) + ")"), ramp, el("span", {}, "more likely (+" + fmtScale(SCALE) + ")"),
+      el("span", { class: "term", "data-tip": "The color scale is fitted to this task: its ends are the largest change among this call's tokens, rounded up, and color strength grows with the square root of the change so small changes stay visible. Hover a token for its exact numbers." }, "· scale fitted to this task"));
+    const st = $("stats"); st.innerHTML = "";
+    const stat = (k, val, tip) => st.append(el("span", tip ? { class: "term", "data-tip": tip } : {}, k), el("b", {}, val));
+    stat("‖δ‖ (" + VAR[variant].label + ")", v.norm.toFixed(v.norm < 1 ? 3 : 2), TIPS.delta);
+    stat("gradient coordinates below ε", Math.round(100 * v.below_eps) + "%", TIPS.eps);
+    stat("Δ mean log-prob, correct call", fmt(v.d_gold, 4), TIPS.anslp);
+    stat("prompt loss before → after", v.loss[0].toFixed(4) + " → " + v.loss[1].toFixed(4), TIPS.loss);
+    if (variant === "paper" && t.best) stat("same at lr 1.0 × 3 (‖δ‖ " + t.best.norm.toFixed(2) + ")", fmt(t.best.d_gold, 4), "The released code at the paper's best 14B setting: learning rate 1.0, 3 Adam steps.");
+    if (variant === "paper") stat("baseline: boost every prompt token (α = 0.25)", fmt(t.copy, 4), TIPS.copy);
+    const bars = $("bars"); bars.innerHTML = "";
+    const head = el("thead"), hr = el("tr"); [["token", ""], ["b", "barcell"], ["", "num"]].forEach(([h, c]) => hr.append(el("th", { class: c }, h))); head.append(hr); bars.append(head);
+    const body = el("tbody"); bars.append(body);
+    const maxb = Math.max(...v.top.map(x => x[1]));
+    for (const [tok, b, inP, inA] of v.top.slice(0, 12)) {
+      const tr = el("tr"), c1 = el("td", { class: "mono" }, showTok(tok)), c2 = el("td", { class: "barcell" }), c3 = el("td", { class: "num small" }, b.toFixed(b < 0.1 ? 4 : 3));
+      const bar = el("div", { class: "bar" + (inA ? "" : " base") }); bar.style.width = (100 * b / maxb) + "%";
+      c2.append(bar);
+      if (inA) c1.append(el("span", { class: "badge gold" }, "in answer"));
+      else if (!inP) c1.append(el("span", { class: "badge" }, "not in prompt"));
+      tr.append(c1, c2, c3); body.append(tr);
+    }
+    const oc = $("outc"); oc.innerHTML = "";
+    const s = t.success;
+    const oh = el("thead"), ohr = el("tr"); ["run", "result"].forEach(h => ohr.append(el("th", {}, h))); oh.append(ohr); oc.append(oh);
+    const ob = el("tbody"); oc.append(ob);
+    const row = (name, ok, note) => {
+      const tr = el("tr"), c = el("td", { class: "nowrap" });
+      if (ok == null) c.textContent = "–"; else c.append(el("span", { class: ok ? "ok" : "no" }, ok ? "solved" : "not solved"));
+      const n = el("td"); n.append(el("div", {}, name)); if (note) n.append(el("div", { class: "small muted" }, note));
+      if (/vLLM/.test(note || "")) n.setAttribute("data-tip", TIPS.vllm); else if (/PyTorch|SA/.test(name + (note || ""))) n.setAttribute("data-tip", TIPS.pytorch);
+      tr.append(n, c); ob.append(tr);
+    };
+    if (s) {
+      row("No adaptation", s.pt_none, "PyTorch loop, reference for SA");
+      row("SA, released code, lr 0.1 × 1", s.sa01, s.sa01_changed ? "SA changed at least one generated token" : "SA changed no token: identical run");
+      row("SA, released code, lr 1.0 × 3", s.sa10, s.sa10_changed ? "SA changed at least one generated token" : "SA changed no token");
+      row("No adaptation", s.vllm_none, "vLLM, reference for DG");
+      row("DG rules in the prompt", s.vllm_dg, "vLLM, 133 rules from self-exploration");
+    }
+    drawScatter();
+  }
+  function select(i) { cur = i; renderTask(); try { window.trackDemoAction && window.trackDemoAction("🔎 Explorer: opened " + T[i].id); } catch (e) {} }
+
+  // ---- frequency ----
+  function renderFreq() {
+    const cnt = new Map(), gold = new Map();
+    for (const t of T) for (const [tok, , , inA] of t.v[variant2].top) { cnt.set(tok, (cnt.get(tok) || 0) + 1); if (inA) gold.set(tok, (gold.get(tok) || 0) + 1); }
+    const top = [...cnt.entries()].sort((a, b) => b[1] - a[1]).slice(0, 15);
+    const tb = $("freq"); tb.innerHTML = "";
+    const head = el("thead"), hr = el("tr"); [["token", ""], ["tasks (of 200)", "barcell"], ["", "num"], ["in answer", "num"]].forEach(([h, c]) => hr.append(el("th", { class: c }, h))); head.append(hr); tb.append(head);
+    const body = el("tbody"); tb.append(body);
+    for (const [tok, n] of top) {
+      const tr = el("tr"), c1 = el("td", { class: "mono" }, showTok(tok)), c2 = el("td", { class: "barcell" });
+      const track = el("div", { class: "bar-track" }), barAll = el("div", { class: "bar base" }), barGold = el("div", { class: "bar" });
+      barAll.style.width = (100 * n / 200) + "%"; barAll.style.position = "relative";
+      barGold.style.width = (100 * (gold.get(tok) || 0) / Math.max(n, 1)) + "%"; barGold.style.position = "absolute"; barGold.style.left = "0"; barGold.style.top = "0";
+      barAll.append(barGold); track.append(barAll); c2.append(track);
+      tr.append(c1, c2, el("td", { class: "num" }, String(n)), el("td", { class: "num muted" }, String(gold.get(tok) || 0)));
+      body.append(tr);
+    }
+  }
+
+  window.addEventListener("resize", drawScatter);
+  window.addEventListener("themechange", () => { drawLegend1(); renderTask(); renderFreq(); });
+  select(0); renderFreq();
+})();
+</script>
+</body>
+</html>

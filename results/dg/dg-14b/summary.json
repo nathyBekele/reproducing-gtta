@@ -1,0 +1,22 @@
+{
+  "model": "Qwen/Qwen2.5-14B-Instruct",
+  "gpu": "H100",
+  "limit": 0,
+  "splits": "val,test",
+  "log": [
+    "vLLM 0.32.0: model loaded in 186s",
+    "exploration: 80 goals, 456 steps, 18s",
+    "extraction: 339 rules, 5 unparsed, 28s",
+    "filtering: GorillaFileSystem 18\u219216, MathAPI 50\u21929, MessageAPI 38\u219212, TicketAPI 37\u219212, TradingBot 39\u219239, TravelAPI 35\u219221, TwitterAPI 80\u219213, VehicleControlAPI 42\u219211 (34s)",
+    "eval none: accuracy 0.175 (35/200), 98s",
+    "eval dg: accuracy 0.210 (42/200), 141s"
+  ],
+  "eval_none": {
+    "n": 200,
+    "accuracy": 0.175
+  },
+  "eval_dg": {
+    "n": 200,
+    "accuracy": 0.21
+  }
+}

@@ -1,0 +1,8 @@
+fastapi==0.156.2
+uvicorn==0.54.0
+httpx==0.28.1
+# only used when SA_BACKEND=local (runs SA on this Space's CPU)
+torch
+transformers==5.20.2
+safetensors
+numpy

@@ -1,0 +1,37 @@
+{
+  "n": 200,
+  "none": 39,
+  "sa_paper:0.1:1": {
+    "changed": 53,
+    "success": 39,
+    "n": 200,
+    "delta": 0.0,
+    "ci": [
+      0.0,
+      0.0
+    ],
+    "median_delta_norm_along_track": 0.19725
+  },
+  "sa_paper:1.0:3": {
+    "changed": 182,
+    "success": 40,
+    "n": 200,
+    "delta": 0.5,
+    "ci": [
+      -2.5,
+      3.5
+    ],
+    "median_delta_norm_along_track": 5.42957
+  },
+  "noise_none": [
+    17.5,
+    18.5,
+    18.5,
+    18.0
+  ],
+  "noise_dg": [
+    21.0,
+    22.0,
+    22.0
+  ]
+}

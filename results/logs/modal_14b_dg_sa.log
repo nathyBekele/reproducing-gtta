@@ -1,0 +1,451 @@
+✓ Initialized. View run at 
+[Modal dashboard link removed]
+Building image im-OW6kaNrxrwbqmEk8b4KEGY
+
+=> Step 0: FROM base
+
+=> Step 1: RUN python -m pip install huggingface_hub mpmath numpy safetensors torch==2.14.1 transformers==5.20.2
+Looking in indexes: http://pypi-mirror.modal.local:5555/simple
+Collecting huggingface_hub
+  Downloading http://pypi-mirror.modal.local:5555/simple/huggingface-hub/huggingface_hub-2.2.0-py3-none-any.whl.metadata (16 kB)
+Collecting mpmath
+  Downloading http://pypi-mirror.modal.local:5555/simple/mpmath/mpmath-1.4.1-py3-none-any.whl.metadata (9.1 kB)
+Collecting numpy
+  Downloading http://pypi-mirror.modal.local:5555/simple/numpy/numpy-2.5.4-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (6.6 kB)
+Collecting safetensors
+  Downloading http://pypi-mirror.modal.local:5555/simple/safetensors/safetensors-0.8.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.2 kB)
+Collecting torch==2.14.1
+  Downloading http://pypi-mirror.modal.local:5555/simple/torch/torch-2.14.1-cp312-cp312-manylinux_2_28_x86_64.whl.metadata (37 kB)
+Collecting transformers==5.20.2
+  Downloading http://pypi-mirror.modal.local:5555/simple/transformers/transformers-5.20.2-py3-none-any.whl.metadata (31 kB)
+Collecting filelock (from torch==2.14.1)
+  Downloading http://pypi-mirror.modal.local:5555/simple/filelock/filelock-4.2.4-py3-none-any.whl.metadata (2.0 kB)
+Collecting typing-extensions>=4.10.0 (from torch==2.14.1)
+  Downloading http://pypi-mirror.modal.local:5555/simple/typing-extensions/typing_extensions-4.16.0-py3-none-any.whl.metadata (3.3 kB)
+Collecting setuptools>=77.0.3 (from torch==2.14.1)
+  Downloading http://pypi-mirror.modal.local:5555/simple/setuptools/setuptools-84.2.1-py3-none-any.whl.metadata (6.6 kB)
+Collecting sympy>=1.13.3 (from torch==2.14.1)
+  Downloading http://pypi-mirror.modal.local:5555/simple/sympy/sympy-1.14.0-py3-none-any.whl.metadata (12 kB)
+Collecting networkx>=2.5.1 (from torch==2.14.1)
+  Downloading http://pypi-mirror.modal.local:5555/simple/networkx/networkx-3.7-py3-none-any.whl.metadata (6.7 kB)
+Collecting jinja2 (from torch==2.14.1)
+  Downloading http://pypi-mirror.modal.local:5555/simple/jinja2/jinja2-3.1.6-py3-none-any.whl.metadata (2.9 kB)
+Collecting fsspec>=0.8.5 (from torch==2.14.1)
+  Downloading http://pypi-mirror.modal.local:5555/simple/fsspec/fsspec-2026.9.0-py3-none-any.whl.metadata (10 kB)
+Collecting cuda-toolkit==13.0.3 (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch==2.14.1)
+  Downloading http://pypi-mirror.modal.local:5555/simple/cuda-toolkit/cuda_toolkit-13.0.3.0-py2.py3-none-any.whl.metadata (17 kB)
+Collecting cuda-bindings<14,>=13.0.3 (from torch==2.14.1)
+  Downloading http://pypi-mirror.modal.local:5555/simple/cuda-bindings/cuda_bindings-13.4.4-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (2.4 kB)
+Collecting nvidia-cudnn-cu13==9.24.0.43 (from torch==2.14.1)
+  Downloading http://pypi-mirror.modal.local:5555/simple/nvidia-cudnn-cu13/nvidia_cudnn_cu13-9.24.0.43-py3-none-manylinux_2_27_x86_64.whl.metadata (1.9 kB)
+Collecting nvidia-cusparselt-cu13==0.8.1 (from torch==2.14.1)
+  Downloading http://pypi-mirror.modal.local:5555/simple/nvidia-cusparselt-cu13/nvidia_cusparselt_cu13-0.8.1-py3-none-manylinux2014_x86_64.whl.metadata (12 kB)
+Collecting nvidia-nccl-cu13==2.30.7 (from torch==2.14.1)
+  Downloading http://pypi-mirror.modal.local:5555/simple/nvidia-nccl-cu13/nvidia_nccl_cu13-2.30.7-py3-none-manylinux_2_18_x86_64.whl.metadata (2.1 kB)
+Collecting nvidia-nvshmem-cu13==3.4.5 (from torch==2.14.1)
+  Downloading http://pypi-mirror.modal.local:5555/simple/nvidia-nvshmem-cu13/nvidia_nvshmem_cu13-3.4.5-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.1 kB)
+Collecting triton~=3.8.0 (from torch==2.14.1)
+  Downloading http://pypi-mirror.modal.local:5555/simple/triton/triton-3.8.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (978 bytes)
+Collecting packaging>=20.0 (from transformers==5.20.2)
+  Downloading http://pypi-mirror.modal.local:5555/simple/packaging/packaging-26.3-py3-none-any.whl.metadata (3.5 kB)
+Collecting pyyaml>=5.1 (from transformers==5.20.2)
+  Downloading http://pypi-mirror.modal.local:5555/simple/pyyaml/pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.4 kB)
+Collecting regex>=2025.10.22 (from transformers==5.20.2)
+  Downloading http://pypi-mirror.modal.local:5555/simple/regex/regex-2026.9.29-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (40 kB)
+Collecting tokenizers<0.24.0,>=0.23.1 (from transformers==5.20.2)
+  Downloading http://pypi-mirror.modal.local:5555/simple/tokenizers/tokenizers-0.23.3-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (9.8 kB)
+Collecting typer (from transformers==5.20.2)
+  Downloading http://pypi-mirror.modal.local:5555/simple/typer/typer-0.27.3-py3-none-any.whl.metadata (16 kB)
+Collecting tqdm>=4.60 (from transformers==5.20.2)
+  Downloading http://pypi-mirror.modal.local:5555/simple/tqdm/tqdm-4.70.1-py3-none-any.whl.metadata (57 kB)
+Collecting nvidia-cublas==13.1.1.3.* (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch==2.14.1)
+  Downloading http://pypi-mirror.modal.local:5555/simple/nvidia-cublas/nvidia_cublas-13.1.1.3-py3-none-manylinux_2_27_x86_64.whl.metadata (1.8 kB)
+Collecting nvidia-cuda-nvrtc==13.0.88.* (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch==2.14.1)
+  Downloading http://pypi-mirror.modal.local:5555/simple/nvidia-cuda-nvrtc/nvidia_cuda_nvrtc-13.0.88-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl.metadata (1.7 kB)
+Collecting nvidia-cuda-runtime==13.0.96.* (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch==2.14.1)
+  Downloading http://pypi-mirror.modal.local:5555/simple/nvidia-cuda-runtime/nvidia_cuda_runtime-13.0.96-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.7 kB)
+Collecting nvidia-cufft==12.0.0.61.* (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch==2.14.1)
+  Downloading http://pypi-mirror.modal.local:5555/simple/nvidia-cufft/nvidia_cufft-12.0.0.61-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.8 kB)
+Collecting nvidia-nvjitlink<14,>=13.0.88 (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch==2.14.1)
+  Downloading http://pypi-mirror.modal.local:5555/simple/nvidia-nvjitlink/nvidia_nvjitlink-13.4.92-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl.metadata (1.8 kB)
+Collecting nvidia-cufile==1.15.1.6.* (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch==2.14.1)
+  Downloading http://pypi-mirror.modal.local:5555/simple/nvidia-cufile/nvidia_cufile-1.15.1.6-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.7 kB)
+Collecting nvidia-cuda-cupti==13.0.85.* (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch==2.14.1)
+  Downloading http://pypi-mirror.modal.local:5555/simple/nvidia-cuda-cupti/nvidia_cuda_cupti-13.0.85-py3-none-manylinux_2_25_x86_64.whl.metadata (1.7 kB)
+Collecting nvidia-curand==10.4.0.35.* (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch==2.14.1)
+  Downloading http://pypi-mirror.modal.local:5555/simple/nvidia-curand/nvidia_curand-10.4.0.35-py3-none-manylinux_2_27_x86_64.whl.metadata (1.7 kB)
+Collecting nvidia-cusolver==12.0.4.66.* (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch==2.14.1)
+  Downloading http://pypi-mirror.modal.local:5555/simple/nvidia-cusolver/nvidia_cusolver-12.0.4.66-py3-none-manylinux_2_27_x86_64.whl.metadata (1.8 kB)
+Collecting nvidia-cusparse==12.6.3.3.* (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch==2.14.1)
+  Downloading http://pypi-mirror.modal.local:5555/simple/nvidia-cusparse/nvidia_cusparse-12.6.3.3-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.8 kB)
+Collecting nvidia-nvtx==13.0.85.* (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch==2.14.1)
+  Downloading http://pypi-mirror.modal.local:5555/simple/nvidia-nvtx/nvidia_nvtx-13.0.85-py3-none-manylinux1_x86_64.manylinux_2_5_x86_64.whl.metadata (1.8 kB)
+Collecting click<9.0.0,>=8.4.2 (from huggingface_hub)
+  Downloading http://pypi-mirror.modal.local:5555/simple/click/click-8.5.0-py3-none-any.whl.metadata (2.6 kB)
+Collecting hf-xet<2.0.0,>=1.6.0 (from huggingface_hub)
+  Downloading http://pypi-mirror.modal.local:5555/simple/hf-xet/hf_xet-1.7.0-cp38-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (4.9 kB)
+Collecting httpx2<3,>=2.0.0 (from huggingface_hub)
+  Downloading http://pypi-mirror.modal.local:5555/simple/httpx2/httpx2-2.16.0-py3-none-any.whl.metadata (10 kB)
+Collecting cuda-pathfinder>=1.4.2 (from cuda-bindings<14,>=13.0.3->torch==2.14.1)
+  Downloading http://pypi-mirror.modal.local:5555/simple/cuda-pathfinder/cuda_pathfinder-1.8.3-py3-none-any.whl.metadata (1.9 kB)
+Collecting anyio>=4.10 (from httpx2<3,>=2.0.0->huggingface_hub)
+  Downloading http://pypi-mirror.modal.local:5555/simple/anyio/anyio-4.15.1-py3-none-any.whl.metadata (4.7 kB)
+Collecting httpcore2==2.16.0 (from httpx2<3,>=2.0.0->huggingface_hub)
+  Downloading http://pypi-mirror.modal.local:5555/simple/httpcore2/httpcore2-2.16.0-py3-none-any.whl.metadata (27 kB)
+Collecting idna>=3.18 (from httpx2<3,>=2.0.0->huggingface_hub)
+  Downloading http://pypi-mirror.modal.local:5555/simple/idna/idna-3.20-py3-none-any.whl.metadata (7.2 kB)
+Collecting truststore>=0.10 (from httpx2<3,>=2.0.0->huggingface_hub)
+  Downloading http://pypi-mirror.modal.local:5555/simple/truststore/truststore-0.10.5-py3-none-any.whl.metadata (4.5 kB)
+Collecting h11>=0.16 (from httpcore2==2.16.0->httpx2<3,>=2.0.0->huggingface_hub)
+  Downloading http://pypi-mirror.modal.local:5555/simple/h11/h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
+Collecting mpmath
+  Downloading http://pypi-mirror.modal.local:5555/simple/mpmath/mpmath-1.3.0-py3-none-any.whl.metadata (8.6 kB)
+Collecting MarkupSafe>=2.0 (from jinja2->torch==2.14.1)
+  Downloading http://pypi-mirror.modal.local:5555/simple/markupsafe/markupsafe-3.0.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.7 kB)
+Collecting shellingham>=1.3.0 (from typer->transformers==5.20.2)
+  Downloading http://pypi-mirror.modal.local:5555/simple/shellingham/shellingham-1.5.4-py2.py3-none-any.whl.metadata (3.5 kB)
+Collecting rich>=13.8.0 (from typer->transformers==5.20.2)
+  Downloading http://pypi-mirror.modal.local:5555/simple/rich/rich-15.0.0-py3-none-any.whl.metadata (18 kB)
+Collecting annotated-doc>=0.0.2 (from typer->transformers==5.20.2)
+  Downloading http://pypi-mirror.modal.local:5555/simple/annotated-doc/annotated_doc-0.0.5-py3-none-any.whl.metadata (6.5 kB)
+Collecting markdown-it-py>=2.2.0 (from rich>=13.8.0->typer->transformers==5.20.2)
+  Downloading http://pypi-mirror.modal.local:5555/simple/markdown-it-py/markdown_it_py-4.2.0-py3-none-any.whl.metadata (7.4 kB)
+Collecting pygments<3.0.0,>=2.13.0 (from rich>=13.8.0->typer->transformers==5.20.2)
+  Downloading http://pypi-mirror.modal.local:5555/simple/pygments/pygments-2.21.0-py3-none-any.whl.metadata (2.5 kB)
+Collecting mdurl~=0.1 (from markdown-it-py>=2.2.0->rich>=13.8.0->typer->transformers==5.20.2)
+  Downloading http://pypi-mirror.modal.local:5555/simple/mdurl/mdurl-0.1.2-py3-none-any.whl.metadata (1.6 kB)
+Downloading http://pypi-mirror.modal.local:5555/simple/torch/torch-2.14.1-cp312-cp312-manylinux_2_28_x86_64.whl (554.6 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 554.6/554.6 MB 781.9 MB/s eta 0:00:00
+Downloading http://pypi-mirror.modal.local:5555/simple/transformers/transformers-5.20.2-py3-none-any.whl (12.8 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 12.8/12.8 MB 805.6 MB/s eta 0:00:00
+Downloading http://pypi-mirror.modal.local:5555/simple/cuda-toolkit/cuda_toolkit-13.0.3.0-py2.py3-none-any.whl (2.5 kB)
+Downloading http://pypi-mirror.modal.local:5555/simple/nvidia-cudnn-cu13/nvidia_cudnn_cu13-9.24.0.43-py3-none-manylinux_2_27_x86_64.whl (553.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 553.1/553.1 MB 766.6 MB/s eta 0:00:00
+Downloading http://pypi-mirror.modal.local:5555/simple/nvidia-cusparselt-cu13/nvidia_cusparselt_cu13-0.8.1-py3-none-manylinux2014_x86_64.whl (170.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 170.1/170.1 MB 778.7 MB/s eta 0:00:00
+Downloading http://pypi-mirror.modal.local:5555/simple/nvidia-nccl-cu13/nvidia_nccl_cu13-2.30.7-py3-none-manylinux_2_18_x86_64.whl (216.0 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 216.0/216.0 MB 801.6 MB/s eta 0:00:00
+Downloading http://pypi-mirror.modal.local:5555/simple/nvidia-nvshmem-cu13/nvidia_nvshmem_cu13-3.4.5-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (60.4 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 60.4/60.4 MB 798.2 MB/s eta 0:00:00
+Downloading http://pypi-mirror.modal.local:5555/simple/huggingface-hub/huggingface_hub-2.2.0-py3-none-any.whl (839 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 839.9/839.9 kB 940.9 MB/s eta 0:00:00
+Downloading http://pypi-mirror.modal.local:5555/simple/click/click-8.5.0-py3-none-any.whl (125 kB)
+Downloading http://pypi-mirror.modal.local:5555/simple/cuda-bindings/cuda_bindings-13.4.4-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (7.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.2/7.2 MB 891.1 MB/s eta 0:00:00
+Downloading http://pypi-mirror.modal.local:5555/simple/hf-xet/hf_xet-1.7.0-cp38-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (4.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.2/4.2 MB 1.0 GB/s eta 0:00:00
+Downloading http://pypi-mirror.modal.local:5555/simple/httpx2/httpx2-2.16.0-py3-none-any.whl (97 kB)
+Downloading http://pypi-mirror.modal.local:5555/simple/httpcore2/httpcore2-2.16.0-py3-none-any.whl (85 kB)
+Downloading http://pypi-mirror.modal.local:5555/simple/nvidia-cublas/nvidia_cublas-13.1.1.3-py3-none-manylinux_2_27_x86_64.whl (423.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 423.1/423.1 MB 781.0 MB/s eta 0:00:00
+Downloading http://pypi-mirror.modal.local:5555/simple/nvidia-cuda-cupti/nvidia_cuda_cupti-13.0.85-py3-none-manylinux_2_25_x86_64.whl (10.7 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 10.7/10.7 MB 858.7 MB/s eta 0:00:00
+Downloading http://pypi-mirror.modal.local:5555/simple/nvidia-cuda-nvrtc/nvidia_cuda_nvrtc-13.0.88-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl (90.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 90.2/90.2 MB 777.6 MB/s eta 0:00:00
+Downloading http://pypi-mirror.modal.local:5555/simple/nvidia-cuda-runtime/nvidia_cuda_runtime-13.0.96-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (2.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.2/2.2 MB 1.1 GB/s eta 0:00:00
+Downloading http://pypi-mirror.modal.local:5555/simple/nvidia-cufft/nvidia_cufft-12.0.0.61-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (214.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 214.1/214.1 MB 527.9 MB/s eta 0:00:00
+Downloading http://pypi-mirror.modal.local:5555/simple/nvidia-cufile/nvidia_cufile-1.15.1.6-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (1.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 2.1 GB/s eta 0:00:00
+Downloading http://pypi-mirror.modal.local:5555/simple/nvidia-curand/nvidia_curand-10.4.0.35-py3-none-manylinux_2_27_x86_64.whl (59.5 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 59.5/59.5 MB 301.4 MB/s eta 0:00:00
+Downloading http://pypi-mirror.modal.local:5555/simple/nvidia-cusolver/nvidia_cusolver-12.0.4.66-py3-none-manylinux_2_27_x86_64.whl (200.9 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 200.9/200.9 MB 535.0 MB/s eta 0:00:00
+Downloading http://pypi-mirror.modal.local:5555/simple/nvidia-cusparse/nvidia_cusparse-12.6.3.3-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (145.9 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 145.9/145.9 MB 785.4 MB/s eta 0:00:00
+Downloading http://pypi-mirror.modal.local:5555/simple/nvidia-nvjitlink/nvidia_nvjitlink-13.4.92-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl (42.5 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 42.5/42.5 MB 468.0 MB/s eta 0:00:00
+Downloading http://pypi-mirror.modal.local:5555/simple/nvidia-nvtx/nvidia_nvtx-13.0.85-py3-none-manylinux1_x86_64.manylinux_2_5_x86_64.whl (148 kB)
+Downloading http://pypi-mirror.modal.local:5555/simple/tokenizers/tokenizers-0.23.3-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.4 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 1.1 GB/s eta 0:00:00
+Downloading http://pypi-mirror.modal.local:5555/simple/triton/triton-3.8.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (248.0 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 248.0/248.0 MB 482.4 MB/s eta 0:00:00
+Downloading http://pypi-mirror.modal.local:5555/simple/numpy/numpy-2.5.4-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (16.7 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 16.7/16.7 MB 536.9 MB/s eta 0:00:00
+Downloading http://pypi-mirror.modal.local:5555/simple/safetensors/safetensors-0.8.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (516 kB)
+Downloading http://pypi-mirror.modal.local:5555/simple/anyio/anyio-4.15.1-py3-none-any.whl (132 kB)
+Downloading http://pypi-mirror.modal.local:5555/simple/cuda-pathfinder/cuda_pathfinder-1.8.3-py3-none-any.whl (62 kB)
+Downloading http://pypi-mirror.modal.local:5555/simple/filelock/filelock-4.2.4-py3-none-any.whl (162 kB)
+Downloading http://pypi-mirror.modal.local:5555/simple/fsspec/fsspec-2026.9.0-py3-none-any.whl (221 kB)
+Downloading http://pypi-mirror.modal.local:5555/simple/h11/h11-0.16.0-py3-none-any.whl (37 kB)
+Downloading http://pypi-mirror.modal.local:5555/simple/idna/idna-3.20-py3-none-any.whl (69 kB)
+Downloading http://pypi-mirror.modal.local:5555/simple/networkx/networkx-3.7-py3-none-any.whl (2.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 758.1 MB/s eta 0:00:00
+Downloading http://pypi-mirror.modal.local:5555/simple/packaging/packaging-26.3-py3-none-any.whl (129 kB)
+Downloading http://pypi-mirror.modal.local:5555/simple/pyyaml/pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (807 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 807.9/807.9 kB 1.3 GB/s eta 0:00:00
+Downloading http://pypi-mirror.modal.local:5555/simple/regex/regex-2026.9.29-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (807 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 807.8/807.8 kB 1.2 GB/s eta 0:00:00
+Downloading http://pypi-mirror.modal.local:5555/simple/setuptools/setuptools-84.2.1-py3-none-any.whl (876 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 876.3/876.3 kB 560.3 MB/s eta 0:00:00
+Downloading http://pypi-mirror.modal.local:5555/simple/sympy/sympy-1.14.0-py3-none-any.whl (6.3 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.3/6.3 MB 606.6 MB/s eta 0:00:00
+Downloading http://pypi-mirror.modal.local:5555/simple/mpmath/mpmath-1.3.0-py3-none-any.whl (536 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 536.2/536.2 kB 1.3 GB/s eta 0:00:00
+Downloading http://pypi-mirror.modal.local:5555/simple/tqdm/tqdm-4.70.1-py3-none-any.whl (80 kB)
+Downloading http://pypi-mirror.modal.local:5555/simple/truststore/truststore-0.10.5-py3-none-any.whl (19 kB)
+Downloading http://pypi-mirror.modal.local:5555/simple/typing-extensions/typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+Downloading http://pypi-mirror.modal.local:5555/simple/jinja2/jinja2-3.1.6-py3-none-any.whl (134 kB)
+Downloading http://pypi-mirror.modal.local:5555/simple/markupsafe/markupsafe-3.0.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (22 kB)
+Downloading http://pypi-mirror.modal.local:5555/simple/typer/typer-0.27.3-py3-none-any.whl (123 kB)
+Downloading http://pypi-mirror.modal.local:5555/simple/annotated-doc/annotated_doc-0.0.5-py3-none-any.whl (5.3 kB)
+Downloading http://pypi-mirror.modal.local:5555/simple/rich/rich-15.0.0-py3-none-any.whl (310 kB)
+Downloading http://pypi-mirror.modal.local:5555/simple/pygments/pygments-2.21.0-py3-none-any.whl (1.3 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.3/1.3 MB 349.8 MB/s eta 0:00:00
+Downloading http://pypi-mirror.modal.local:5555/simple/markdown-it-py/markdown_it_py-4.2.0-py3-none-any.whl (91 kB)
+Downloading http://pypi-mirror.modal.local:5555/simple/mdurl/mdurl-0.1.2-py3-none-any.whl (10.0 kB)
+Downloading http://pypi-mirror.modal.local:5555/simple/shellingham/shellingham-1.5.4-py2.py3-none-any.whl (9.8 kB)
+Installing collected packages: nvidia-cusparselt-cu13, mpmath, cuda-toolkit, typing-extensions, truststore, triton, tqdm, sympy, shellingham, setuptools, safetensors, regex, pyyaml, pygments, packaging, nvidia-nvtx, nvidia-nvshmem-cu13, nvidia-nvjitlink, nvidia-nccl-cu13, nvidia-curand, nvidia-cufile, nvidia-cuda-runtime, nvidia-cuda-nvrtc, nvidia-cuda-cupti, numpy, networkx, mdurl, MarkupSafe, idna, hf-xet, h11, fsspec, filelock, cuda-pathfinder, click, annotated-doc, nvidia-cusparse, nvidia-cufft, nvidia-cublas, markdown-it-py, jinja2, httpcore2, cuda-bindings, anyio, rich, nvidia-cusolver, nvidia-cudnn-cu13, httpx2, typer, huggingface_hub, torch, tokenizers, transformers
+
+Successfully installed MarkupSafe-3.0.4 annotated-doc-0.0.5 anyio-4.15.1 click-8.5.0 cuda-bindings-13.4.4 cuda-pathfinder-1.8.3 cuda-toolkit-13.0.3.0 filelock-4.2.4 fsspec-2026.9.0 h11-0.16.0 hf-xet-1.7.0 httpcore2-2.16.0 httpx2-2.16.0 huggingface_hub-2.2.0 idna-3.20 jinja2-3.1.6 markdown-it-py-4.2.0 mdurl-0.1.2 mpmath-1.3.0 networkx-3.7 numpy-2.5.4 nvidia-cublas-13.1.1.3 nvidia-cuda-cupti-13.0.85 nvidia-cuda-nvrtc-13.0.88 nvidia-cuda-runtime-13.0.96 nvidia-cudnn-cu13-9.24.0.43 nvidia-cufft-12.0.0.61 nvidia-cufile-1.15.1.6 nvidia-curand-10.4.0.35 nvidia-cusolver-12.0.4.66 nvidia-cusparse-12.6.3.3 nvidia-cusparselt-cu13-0.8.1 nvidia-nccl-cu13-2.30.7 nvidia-nvjitlink-13.4.92 nvidia-nvshmem-cu13-3.4.5 nvidia-nvtx-13.0.85 packaging-26.3 pygments-2.21.0 pyyaml-6.0.3 regex-2026.9.29 rich-15.0.0 safetensors-0.8.0 setuptools-84.2.1 shellingham-1.5.4 sympy-1.14.0 tokenizers-0.23.3 torch-2.14.1 tqdm-4.70.1 transformers-5.20.2 triton-3.8.0 truststore-0.10.5 typer-0.27.3 typing-extensions-4.16.0
+
+[notice] A new release of pip is available: 25.1.1 -> 26.2.2
+[notice] To update, run: pip install --upgrade pip
+Saving image...
+Image saved, took 7.32s
+
+Built image im-OW6kaNrxrwbqmEk8b4KEGY in 81.63s
+
+
+Building image im-vVan44XXxOKXbX1e0se0CD
+
+=> Step 0: FROM base
+
+=> Step 1: ENV HF_HUB_ENABLE_HF_TRANSFER=0
+
+=> Step 2: ENV TOKENIZERS_PARALLELISM=false
+Saving image...
+Image saved, took 656.00ms
+
+Built image im-vVan44XXxOKXbX1e0se0CD in 1.58s
+
+
+✓ Created objects.
+├── ✓ Uploaded 
+│   ./scripts/modal_run.py
+├── ✓ Uploaded ./sa
+├── ✓ Uploaded ./data/bfcl_v3
+├── ✓ Uploaded ./third_party
+└── ✓ Created Function run.
+qwen2.5-14b-bf16-dg: 0 examples already saved (skipped)
+GPU=H100, hard limit 40 min
+using DG rules from results/dg/dg-14b/dynamics.json
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+[1AFetching 8 files:   0%|          | 0/8 [00:00<?, ?it/s]
+[1AFetching 8 files:  12%|█▎        | 1/8 [00:54<06:22, 54.61s/it]
+[1AFetching 8 files:  25%|██▌       | 2/8 [01:03<02:46, 27.75s/it]
+[1AFetching 8 files:  38%|███▊      | 3/8 [01:04<01:18, 15.61s/it]
+[1AFetching 8 files:  50%|█████     | 4/8 [01:13<00:52, 13.07s/it]
+[1AFetching 8 files:  62%|██████▎   | 5/8 [01:23<00:35, 11.75s/it]
+[1AFetching 8 files:  75%|███████▌  | 6/8 [01:28<00:19,  9.68s/it]
+[1AFetching 8 files:  88%|████████▊ | 7/8 [01:29<00:06,  6.79s/it]
+[1AFetching 8 files: 100%|██████████| 8/8 [01:30<00:00,  4.90s/it]Fetching 8 files: 100%|██████████| 8/8 [01:30<00:00, 11.33s/it]
+
+[1ALoading weights:   0%|          | 0/579 [00:00<?, ?it/s]Loading weights: 100%|██████████| 579/579 [00:00<00:00, 9568.91it/s]
+[qwen2.5-14b-bf16-dg] lr=0.1 steps=1 | model loaded in 102.0s on cuda (torch.bfloat16)
+[qwen2.5-14b-bf16-dg] [1/?] multi_turn_base_66 T=5691 1.51s | none -1.441 | paper -1.439 | exact -1.387 | copy@2 -1.552
+[qwen2.5-14b-bf16-dg] [2/?] multi_turn_base_187 T=8877 1.26s | none -0.792 | paper -0.792 | exact -0.803 | copy@2 -0.814
+[qwen2.5-14b-bf16-dg] [3/?] multi_turn_base_101 T=8516 0.84s | none -1.477 | paper -1.477 | exact -1.495 | copy@2 -1.346
+[qwen2.5-14b-bf16-dg] [4/?] multi_turn_base_193 T=8863 0.88s | none -0.538 | paper -0.539 | exact -0.549 | copy@2 -0.539
+[qwen2.5-14b-bf16-dg] [5/?] multi_turn_base_111 T=8509 0.84s | none -2.679 | paper -2.680 | exact -2.741 | copy@2 -2.517
+[qwen2.5-14b-bf16-dg] [6/?] multi_turn_base_121 T=6289 0.64s | none -1.693 | paper -1.694 | exact -1.740 | copy@2 -1.493
+[qwen2.5-14b-bf16-dg] [7/?] multi_turn_base_13 T=8120 0.8s | none -3.497 | paper -3.497 | exact -3.569 | copy@2 -3.650
+[qwen2.5-14b-bf16-dg] [8/?] multi_turn_base_2 T=6355 0.64s | none -2.670 | paper -2.672 | exact -2.787 | copy@2 -2.670
+[qwen2.5-14b-bf16-dg] [9/?] multi_turn_base_64 T=5628 0.57s | none -0.883 | paper -0.882 | exact -0.881 | copy@2 -0.925
+[qwen2.5-14b-bf16-dg] [10/?] multi_turn_base_44 T=7815 0.77s | none -0.850 | paper -0.851 | exact -0.868 | copy@2 -0.861
+[qwen2.5-14b-bf16-dg] [11/?] multi_turn_base_136 T=9406 0.93s | none -1.585 | paper -1.585 | exact -1.642 | copy@2 -1.445
+[qwen2.5-14b-bf16-dg] [12/?] multi_turn_base_170 T=9935 1.0s | none -0.549 | paper -0.549 | exact -0.548 | copy@2 -0.544
+[qwen2.5-14b-bf16-dg] [13/?] multi_turn_base_128 T=6292 0.62s | none -1.120 | paper -1.120 | exact -1.153 | copy@2 -0.977
+[qwen2.5-14b-bf16-dg] [14/?] multi_turn_base_76 T=9113 0.89s | none -0.720 | paper -0.720 | exact -0.709 | copy@2 -0.763
+[qwen2.5-14b-bf16-dg] [15/?] multi_turn_base_158 T=6435 0.66s | none -0.444 | paper -0.444 | exact -0.450 | copy@2 -0.444
+[qwen2.5-14b-bf16-dg] [16/?] multi_turn_base_167 T=6422 0.64s | none -0.747 | paper -0.747 | exact -0.745 | copy@2 -0.733
+[qwen2.5-14b-bf16-dg] [17/?] multi_turn_base_45 T=7760 0.77s | none -0.827 | paper -0.827 | exact -0.877 | copy@2 -0.827
+[qwen2.5-14b-bf16-dg] [18/?] multi_turn_base_130 T=6293 0.63s | none -1.524 | paper -1.525 | exact -1.541 | copy@2 -1.402
+[qwen2.5-14b-bf16-dg] [19/?] multi_turn_base_30 T=8123 0.78s | none -3.122 | paper -3.122 | exact -3.092 | copy@2 -3.127
+[qwen2.5-14b-bf16-dg] [20/?] multi_turn_base_3 T=4651 0.48s | none -4.437 | paper -4.443 | exact -4.643 | copy@2 -4.658
+[qwen2.5-14b-bf16-dg] [21/?] multi_turn_base_159 T=6428 0.65s | none -0.961 | paper -0.961 | exact -0.960 | copy@2 -1.003
+[qwen2.5-14b-bf16-dg] [22/?] multi_turn_base_15 T=7785 0.75s | none -3.249 | paper -3.249 | exact -3.281 | copy@2 -3.470
+[qwen2.5-14b-bf16-dg] [23/?] multi_turn_base_42 T=7769 0.76s | none -4.587 | paper -4.588 | exact -4.662 | copy@2 -4.754
+[qwen2.5-14b-bf16-dg] [24/?] multi_turn_base_126 T=6299 0.63s | none -0.044 | paper -0.044 | exact -0.055 | copy@2 -0.044
+[qwen2.5-14b-bf16-dg] [25/?] multi_turn_base_186 T=9888 0.96s | none -0.833 | paper -0.833 | exact -0.838 | copy@2 -0.826
+[qwen2.5-14b-bf16-dg] [26/?] multi_turn_base_162 T=8786 0.86s | none -0.000 | paper -0.000 | exact -0.000 | copy@2 -0.000
+[qwen2.5-14b-bf16-dg] [27/?] multi_turn_base_47 T=7769 0.76s | none -4.277 | paper -4.281 | exact -4.641 | copy@2 -4.676
+[qwen2.5-14b-bf16-dg] [28/?] multi_turn_base_110 T=8686 0.87s | none -0.043 | paper -0.043 | exact -0.032 | copy@2 -0.043
+[qwen2.5-14b-bf16-dg] [29/?] multi_turn_base_5 T=8111 0.81s | none -5.049 | paper -5.050 | exact -5.176 | copy@2 -5.143
+[qwen2.5-14b-bf16-dg] [30/?] multi_turn_base_194 T=6437 0.65s | none -0.814 | paper -0.814 | exact -0.813 | copy@2 -0.808
+[qwen2.5-14b-bf16-dg] [31/?] multi_turn_base_37 T=4635 0.48s | none -9.309 | paper -9.309 | exact -9.302 | copy@2 -9.318
+[qwen2.5-14b-bf16-dg] [32/?] multi_turn_base_122 T=6292 0.64s | none -0.925 | paper -0.925 | exact -0.928 | copy@2 -0.769
+[qwen2.5-14b-bf16-dg] [33/?] multi_turn_base_12 T=4645 0.48s | none -1.850 | paper -1.853 | exact -1.932 | copy@2 -1.853
+[qwen2.5-14b-bf16-dg] [34/?] multi_turn_base_36 T=7766 0.76s | none -2.347 | paper -2.347 | exact -2.347 | copy@2 -2.356
+[qwen2.5-14b-bf16-dg] [35/?] multi_turn_base_153 T=6464 0.65s | none -0.431 | paper -0.432 | exact -0.438 | copy@2 -0.431
+[qwen2.5-14b-bf16-dg] [36/?] multi_turn_base_69 T=9097 0.89s | none -1.255 | paper -1.254 | exact -1.212 | copy@2 -1.345
+[qwen2.5-14b-bf16-dg] [37/?] multi_turn_base_61 T=7209 0.72s | none -1.405 | paper -1.405 | exact -1.378 | copy@2 -1.480
+[qwen2.5-14b-bf16-dg] [38/?] multi_turn_base_195 T=9894 0.97s | none -0.624 | paper -0.624 | exact -0.616 | copy@2 -0.615
+[qwen2.5-14b-bf16-dg] [39/?] multi_turn_base_32 T=7133 0.7s | none -0.783 | paper -0.783 | exact -0.802 | copy@2 -0.783
+[qwen2.5-14b-bf16-dg] [40/?] multi_turn_base_172 T=8700 0.86s | none -0.651 | paper -0.651 | exact -0.659 | copy@2 -0.651
+[qwen2.5-14b-bf16-dg] [41/?] multi_turn_base_171 T=8697 0.87s | none -0.479 | paper -0.478 | exact -0.473 | copy@2 -0.467
+[qwen2.5-14b-bf16-dg] [42/?] multi_turn_base_60 T=8039 0.8s | none -1.080 | paper -1.080 | exact -1.072 | copy@2 -1.082
+[qwen2.5-14b-bf16-dg] [43/?] multi_turn_base_10 T=4633 0.48s | none -4.924 | paper -4.925 | exact -4.965 | copy@2 -5.090
+[qwen2.5-14b-bf16-dg] [44/?] multi_turn_base_144 T=9395 0.92s | none -1.400 | paper -1.400 | exact -1.408 | copy@2 -1.297
+[qwen2.5-14b-bf16-dg] [45/?] multi_turn_base_160 T=8844 0.86s | none -1.046 | paper -1.046 | exact -1.026 | copy@2 -1.043
+[qwen2.5-14b-bf16-dg] [46/?] multi_turn_base_52 T=9098 0.9s | none -1.336 | paper -1.336 | exact -1.324 | copy@2 -1.341
+[qwen2.5-14b-bf16-dg] [47/?] multi_turn_base_125 T=8684 0.85s | none -0.627 | paper -0.627 | exact -0.609 | copy@2 -0.627
+[qwen2.5-14b-bf16-dg] [48/?] multi_turn_base_106 T=8692 0.86s | none -1.881 | paper -1.882 | exact -1.905 | copy@2 -1.725
+[qwen2.5-14b-bf16-dg] [49/?] multi_turn_base_73 T=5642 0.57s | none -0.478 | paper -0.476 | exact -0.412 | copy@2 -0.400
+[qwen2.5-14b-bf16-dg] [50/?] multi_turn_base_113 T=7879 0.76s | none -5.117 | paper -5.117 | exact -5.145 | copy@2 -5.026
+[qwen2.5-14b-bf16-dg] [51/?] multi_turn_base_105 T=6265 0.63s | none -3.172 | paper -3.175 | exact -3.367 | copy@2 -2.950
+[qwen2.5-14b-bf16-dg] [52/?] multi_turn_base_95 T=7848 0.78s | none -1.101 | paper -1.101 | exact -1.080 | copy@2 -1.055
+[qwen2.5-14b-bf16-dg] [53/?] multi_turn_base_103 T=8495 0.83s | none -4.007 | paper -4.008 | exact -4.135 | copy@2 -3.993
+[qwen2.5-14b-bf16-dg] [54/?] multi_turn_base_145 T=8518 0.84s | none -3.557 | paper -3.559 | exact -3.732 | copy@2 -3.386
+[qwen2.5-14b-bf16-dg] [55/?] multi_turn_base_43 T=6224 0.62s | none -0.000 | paper -0.000 | exact -0.000 | copy@2 -0.000
+[qwen2.5-14b-bf16-dg] [56/?] multi_turn_base_0 T=8104 0.8s | none -1.006 | paper -1.006 | exact -1.028 | copy@2 -0.996
+[qwen2.5-14b-bf16-dg] [57/?] multi_turn_base_161 T=9572 0.94s | none -0.437 | paper -0.437 | exact -0.446 | copy@2 -0.437
+[qwen2.5-14b-bf16-dg] [58/?] multi_turn_base_192 T=6404 0.65s | none -0.728 | paper -0.728 | exact -0.736 | copy@2 -0.728
+[qwen2.5-14b-bf16-dg] [59/?] multi_turn_base_16 T=4666 0.48s | none -1.140 | paper -1.141 | exact -1.182 | copy@2 -1.190
+[qwen2.5-14b-bf16-dg] [60/?] multi_turn_base_80 T=8746 0.86s | none -1.702 | paper -1.701 | exact -1.673 | copy@2 -1.787
+[qwen2.5-14b-bf16-dg] [61/?] multi_turn_base_102 T=8681 0.85s | none -1.121 | paper -1.121 | exact -1.136 | copy@2 -1.012
+[qwen2.5-14b-bf16-dg] [62/?] multi_turn_base_38 T=4651 0.49s | none -1.550 | paper -1.551 | exact -1.567 | copy@2 -1.550
+[qwen2.5-14b-bf16-dg] [63/?] multi_turn_base_156 T=8834 0.87s | none -0.200 | paper -0.200 | exact -0.202 | copy@2 -0.194
+[qwen2.5-14b-bf16-dg] [64/?] multi_turn_base_176 T=8863 0.87s | none -0.483 | paper -0.483 | exact -0.485 | copy@2 -0.497
+[qwen2.5-14b-bf16-dg] [65/?] multi_turn_base_135 T=6275 0.63s | none -1.667 | paper -1.669 | exact -1.765 | copy@2 -1.524
+[qwen2.5-14b-bf16-dg] [66/?] multi_turn_base_78 T=9111 0.89s | none -0.104 | paper -0.104 | exact -0.093 | copy@2 -0.104
+[qwen2.5-14b-bf16-dg] [67/?] multi_turn_base_115 T=6270 0.61s | none -1.509 | paper -1.509 | exact -1.535 | copy@2 -1.403
+[qwen2.5-14b-bf16-dg] [68/?] multi_turn_base_19 T=6217 0.62s | none -3.159 | paper -3.161 | exact -3.277 | copy@2 -3.334
+[qwen2.5-14b-bf16-dg] [69/?] multi_turn_base_14 T=6219 0.62s | none -2.435 | paper -2.437 | exact -2.553 | copy@2 -2.559
+[qwen2.5-14b-bf16-dg] [70/?] multi_turn_base_177 T=8858 0.88s | none -0.363 | paper -0.363 | exact -0.371 | copy@2 -0.356
+[qwen2.5-14b-bf16-dg] [71/?] multi_turn_base_146 T=6271 0.63s | none -0.046 | paper -0.046 | exact -0.060 | copy@2 -0.046
+[qwen2.5-14b-bf16-dg] [72/?] multi_turn_base_179 T=6454 0.64s | none -0.385 | paper -0.385 | exact -0.370 | copy@2 -0.370
+[qwen2.5-14b-bf16-dg] [73/?] multi_turn_base_65 T=9191 0.9s | none -0.518 | paper -0.518 | exact -0.522 | copy@2 -0.527
+[qwen2.5-14b-bf16-dg] [74/?] multi_turn_base_84 T=5639 0.57s | none -0.786 | paper -0.786 | exact -0.781 | copy@2 -0.786
+[qwen2.5-14b-bf16-dg] [75/?] multi_turn_base_165 T=8123 0.82s | none -0.474 | paper -0.474 | exact -0.481 | copy@2 -0.474
+[qwen2.5-14b-bf16-dg] [76/?] multi_turn_base_46 T=6215 0.63s | none -3.093 | paper -3.093 | exact -3.121 | copy@2 -3.213
+[qwen2.5-14b-bf16-dg] [77/?] multi_turn_base_104 T=6345 0.64s | none -4.102 | paper -4.105 | exact -4.305 | copy@2 -4.048
+[qwen2.5-14b-bf16-dg] [78/?] multi_turn_base_79 T=5625 0.56s | none -0.005 | paper -0.005 | exact -0.004 | copy@2 -0.004
+[qwen2.5-14b-bf16-dg] [79/?] multi_turn_base_54 T=9091 0.9s | none -0.946 | paper -0.945 | exact -0.920 | copy@2 -0.980
+[qwen2.5-14b-bf16-dg] [80/?] multi_turn_base_196 T=8832 0.88s | none -0.787 | paper -0.786 | exact -0.766 | copy@2 -0.782
+[qwen2.5-14b-bf16-dg] [81/?] multi_turn_base_85 T=5628 0.58s | none -1.728 | paper -1.728 | exact -1.707 | copy@2 -1.879
+[qwen2.5-14b-bf16-dg] [82/?] multi_turn_base_118 T=6283 0.63s | none -0.026 | paper -0.026 | exact -0.020 | copy@2 -0.026
+[qwen2.5-14b-bf16-dg] [83/?] multi_turn_base_109 T=9743 0.96s | none -0.980 | paper -0.980 | exact -1.032 | copy@2 -0.780
+[qwen2.5-14b-bf16-dg] [84/?] multi_turn_base_133 T=7992 0.79s | none -1.534 | paper -1.534 | exact -1.564 | copy@2 -1.391
+[qwen2.5-14b-bf16-dg] [85/?] multi_turn_base_142 T=6276 0.64s | none -2.487 | paper -2.488 | exact -2.567 | copy@2 -2.294
+[qwen2.5-14b-bf16-dg] [86/?] multi_turn_base_33 T=6869 0.68s | none -5.767 | paper -5.769 | exact -5.899 | copy@2 -6.434
+[qwen2.5-14b-bf16-dg] [87/?] multi_turn_base_18 T=8111 0.8s | none -1.355 | paper -1.355 | exact -1.347 | copy@2 -1.400
+[qwen2.5-14b-bf16-dg] [88/?] multi_turn_base_140 T=8686 0.86s | none -2.491 | paper -2.492 | exact -2.593 | copy@2 -2.290
+[qwen2.5-14b-bf16-dg] [89/?] multi_turn_base_123 T=6302 0.64s | none -1.634 | paper -1.634 | exact -1.635 | copy@2 -1.566
+[qwen2.5-14b-bf16-dg] [90/?] multi_turn_base_175 T=9908 0.98s | none -0.495 | paper -0.494 | exact -0.489 | copy@2 -0.501
+[qwen2.5-14b-bf16-dg] [91/?] multi_turn_base_63 T=7214 0.71s | none -0.000 | paper -0.000 | exact -0.000 | copy@2 -0.000
+[qwen2.5-14b-bf16-dg] [92/?] multi_turn_base_83 T=5646 0.58s | none -0.213 | paper -0.212 | exact -0.194 | copy@2 -0.294
+[qwen2.5-14b-bf16-dg] [93/?] multi_turn_base_148 T=8687 0.85s | none -2.097 | paper -2.096 | exact -2.091 | copy@2 -1.947
+[qwen2.5-14b-bf16-dg] [94/?] multi_turn_base_100 T=6297 0.61s | none -2.473 | paper -2.475 | exact -2.600 | copy@2 -2.251
+[qwen2.5-14b-bf16-dg] [95/?] multi_turn_base_155 T=6447 0.65s | none -0.200 | paper -0.200 | exact -0.201 | copy@2 -0.197
+[qwen2.5-14b-bf16-dg] [96/?] multi_turn_base_72 T=7837 0.77s | none -1.496 | paper -1.496 | exact -1.454 | copy@2 -1.625
+[qwen2.5-14b-bf16-dg] [97/?] multi_turn_base_27 T=7045 0.7s | none -2.161 | paper -2.161 | exact -2.208 | copy@2 -2.049
+[qwen2.5-14b-bf16-dg] [98/?] multi_turn_base_184 T=8679 0.86s | none -0.326 | paper -0.326 | exact -0.326 | copy@2 -0.332
+[qwen2.5-14b-bf16-dg] [99/?] multi_turn_base_112 T=9417 0.92s | none -0.970 | paper -0.970 | exact -1.005 | copy@2 -0.837
+[qwen2.5-14b-bf16-dg] [100/?] multi_turn_base_51 T=7217 0.73s | none -0.001 | paper -0.001 | exact -0.001 | copy@2 -0.001
+[qwen2.5-14b-bf16-dg] [101/?] multi_turn_base_174 T=9910 0.98s | none -0.324 | paper -0.324 | exact -0.324 | copy@2 -0.339
+[qwen2.5-14b-bf16-dg] [102/?] multi_turn_base_4 T=8102 0.79s | none -0.845 | paper -0.844 | exact -0.814 | copy@2 -1.020
+[qwen2.5-14b-bf16-dg] [103/?] multi_turn_base_29 T=4635 0.47s | none -1.121 | paper -1.123 | exact -1.160 | copy@2 -1.121
+[qwen2.5-14b-bf16-dg] [104/?] multi_turn_base_183 T=9894 0.96s | none -0.283 | paper -0.283 | exact -0.289 | copy@2 -0.283
+[qwen2.5-14b-bf16-dg] [105/?] multi_turn_base_99 T=5647 0.57s | none -0.681 | paper -0.680 | exact -0.636 | copy@2 -0.677
+[qwen2.5-14b-bf16-dg] [106/?] multi_turn_base_98 T=8771 0.86s | none -0.601 | paper -0.601 | exact -0.607 | copy@2 -0.601
+[qwen2.5-14b-bf16-dg] [107/?] multi_turn_base_131 T=8499 0.83s | none -0.003 | paper -0.003 | exact -0.005 | copy@2 -0.003
+[qwen2.5-14b-bf16-dg] [108/?] multi_turn_base_124 T=9432 0.92s | none -0.653 | paper -0.654 | exact -0.680 | copy@2 -0.548
+[qwen2.5-14b-bf16-dg] [109/?] multi_turn_base_198 T=10020 1.01s | none -0.343 | paper -0.343 | exact -0.343 | copy@2 -0.348
+[qwen2.5-14b-bf16-dg] [110/?] multi_turn_base_134 T=8796 0.86s | none -2.217 | paper -2.219 | exact -2.349 | copy@2 -2.094
+[qwen2.5-14b-bf16-dg] [111/?] multi_turn_base_178 T=8878 0.86s | none -0.908 | paper -0.908 | exact -0.911 | copy@2 -0.908
+[qwen2.5-14b-bf16-dg] [112/?] multi_turn_base_120 T=6264 0.64s | none -1.379 | paper -1.379 | exact -1.396 | copy@2 -1.251
+[qwen2.5-14b-bf16-dg] [113/?] multi_turn_base_34 T=7121 0.72s | none -2.815 | paper -2.815 | exact -2.841 | copy@2 -2.815
+[qwen2.5-14b-bf16-dg] [114/?] multi_turn_base_48 T=7074 0.71s | none -3.582 | paper -3.583 | exact -3.645 | copy@2 -3.582
+[qwen2.5-14b-bf16-dg] [115/?] multi_turn_base_169 T=8088 0.81s | none -0.460 | paper -0.460 | exact -0.460 | copy@2 -0.470
+[qwen2.5-14b-bf16-dg] [116/?] multi_turn_base_138 T=8517 0.85s | none -3.110 | paper -3.112 | exact -3.286 | copy@2 -2.889
+[qwen2.5-14b-bf16-dg] [117/?] multi_turn_base_149 T=8528 0.84s | none -4.125 | paper -4.126 | exact -4.205 | copy@2 -3.944
+[qwen2.5-14b-bf16-dg] [118/?] multi_turn_base_132 T=6270 0.61s | none -1.109 | paper -1.109 | exact -1.118 | copy@2 -0.966
+[qwen2.5-14b-bf16-dg] [119/?] multi_turn_base_127 T=6280 0.63s | none -0.008 | paper -0.008 | exact -0.010 | copy@2 -0.008
+[qwen2.5-14b-bf16-dg] [120/?] multi_turn_base_21 T=8138 0.79s | none -2.154 | paper -2.153 | exact -2.109 | copy@2 -2.154
+[qwen2.5-14b-bf16-dg] [121/?] multi_turn_base_81 T=8779 0.86s | none -0.351 | paper -0.351 | exact -0.386 | copy@2 -0.419
+[qwen2.5-14b-bf16-dg] [122/?] multi_turn_base_77 T=9091 0.89s | none -1.586 | paper -1.586 | exact -1.555 | copy@2 -1.668
+[qwen2.5-14b-bf16-dg] [123/?] multi_turn_base_9 T=4636 0.49s | none -2.181 | paper -2.183 | exact -2.268 | copy@2 -2.181
+[qwen2.5-14b-bf16-dg] [124/?] multi_turn_base_82 T=5660 0.57s | none -2.848 | paper -2.847 | exact -2.804 | copy@2 -2.986
+[qwen2.5-14b-bf16-dg] [125/?] multi_turn_base_164 T=6429 0.64s | none -0.889 | paper -0.889 | exact -0.890 | copy@2 -0.883
+[qwen2.5-14b-bf16-dg] [126/?] multi_turn_base_119 T=8670 0.85s | none -2.756 | paper -2.757 | exact -2.920 | copy@2 -2.582
+[qwen2.5-14b-bf16-dg] [127/?] multi_turn_base_89 T=5620 0.57s | none -1.184 | paper -1.184 | exact -1.182 | copy@2 -1.213
+[qwen2.5-14b-bf16-dg] [128/?] multi_turn_base_68 T=9114 0.89s | none -1.198 | paper -1.196 | exact -1.077 | copy@2 -1.093
+[qwen2.5-14b-bf16-dg] [129/?] multi_turn_base_53 T=9102 0.89s | none -0.738 | paper -0.737 | exact -0.564 | copy@2 -0.586
+[qwen2.5-14b-bf16-dg] [130/?] multi_turn_base_90 T=9114 0.9s | none -0.767 | paper -0.767 | exact -0.748 | copy@2 -0.794
+[qwen2.5-14b-bf16-dg] [131/?] multi_turn_base_94 T=5670 0.58s | none -0.225 | paper -0.224 | exact -0.182 | copy@2 -0.230
+[qwen2.5-14b-bf16-dg] [132/?] multi_turn_base_41 T=6863 1.06s | none -3.002 | paper -3.002 | exact -3.007 | copy@2 -3.092
+[qwen2.5-14b-bf16-dg] [133/?] multi_turn_base_93 T=5627 0.57s | none -5.636 | paper -5.637 | exact -5.678 | copy@2 -5.636
+[qwen2.5-14b-bf16-dg] [134/?] multi_turn_base_116 T=6273 0.63s | none -0.046 | paper -0.047 | exact -0.053 | copy@2 -0.046
+[qwen2.5-14b-bf16-dg] [135/?] multi_turn_base_199 T=8020 0.8s | none -0.337 | paper -0.337 | exact -0.340 | copy@2 -0.341
+[qwen2.5-14b-bf16-dg] [136/?] multi_turn_base_157 T=9504 0.93s | none -0.000 | paper -0.000 | exact -0.000 | copy@2 -0.000
+[qwen2.5-14b-bf16-dg] [137/?] multi_turn_base_25 T=4639 0.48s | none -3.952 | paper -3.954 | exact -4.016 | copy@2 -3.952
+[qwen2.5-14b-bf16-dg] [138/?] multi_turn_base_180 T=8828 0.86s | none -0.556 | paper -0.556 | exact -0.562 | copy@2 -0.563
+[qwen2.5-14b-bf16-dg] [139/?] multi_turn_base_147 T=9815 0.96s | none -1.311 | paper -1.311 | exact -1.320 | copy@2 -1.259
+[qwen2.5-14b-bf16-dg] [140/?] multi_turn_base_74 T=8114 0.8s | none -0.205 | paper -0.205 | exact -0.260 | copy@2 -0.249
+[qwen2.5-14b-bf16-dg] [141/?] multi_turn_base_58 T=9100 0.89s | none -1.730 | paper -1.729 | exact -1.673 | copy@2 -1.902
+[qwen2.5-14b-bf16-dg] [142/?] multi_turn_base_152 T=8872 0.88s | none -0.531 | paper -0.531 | exact -0.540 | copy@2 -0.517
+[qwen2.5-14b-bf16-dg] [143/?] multi_turn_base_17 T=6869 0.69s | none -0.000 | paper -0.000 | exact -0.000 | copy@2 -0.000
+[qwen2.5-14b-bf16-dg] [144/?] multi_turn_base_49 T=7781 0.76s | none -0.000 | paper -0.000 | exact -0.000 | copy@2 -0.000
+[qwen2.5-14b-bf16-dg] [145/?] multi_turn_base_92 T=5641 0.57s | none -1.013 | paper -1.013 | exact -1.025 | copy@2 -1.013
+[qwen2.5-14b-bf16-dg] [146/?] multi_turn_base_75 T=9109 0.87s | none -2.120 | paper -2.119 | exact -2.030 | copy@2 -2.274
+[qwen2.5-14b-bf16-dg] [147/?] multi_turn_base_141 T=8518 0.83s | none -1.500 | paper -1.500 | exact -1.507 | copy@2 -1.333
+[qwen2.5-14b-bf16-dg] [148/?] multi_turn_base_20 T=8107 0.8s | none -3.009 | paper -3.009 | exact -3.046 | copy@2 -2.714
+[qwen2.5-14b-bf16-dg] [149/?] multi_turn_base_96 T=7652 0.75s | none -0.818 | paper -0.818 | exact -0.818 | copy@2 -0.818
+[qwen2.5-14b-bf16-dg] [150/?] multi_turn_base_31 T=7197 0.72s | none -1.294 | paper -1.295 | exact -1.330 | copy@2 -1.332
+[qwen2.5-14b-bf16-dg] [151/?] multi_turn_base_137 T=8514 0.84s | none -2.297 | paper -2.298 | exact -2.399 | copy@2 -2.102
+[qwen2.5-14b-bf16-dg] [152/?] multi_turn_base_117 T=6293 0.62s | none -2.454 | paper -2.454 | exact -2.493 | copy@2 -2.107
+[qwen2.5-14b-bf16-dg] [153/?] multi_turn_base_11 T=8101 0.79s | none -1.107 | paper -1.106 | exact -1.076 | copy@2 -1.250
+[qwen2.5-14b-bf16-dg] [154/?] multi_turn_base_67 T=7193 0.71s | none -1.660 | paper -1.660 | exact -1.659 | copy@2 -1.732
+[qwen2.5-14b-bf16-dg] [155/?] multi_turn_base_88 T=9086 0.9s | none -0.000 | paper -0.000 | exact -0.000 | copy@2 -0.000
+[qwen2.5-14b-bf16-dg] [156/?] multi_turn_base_91 T=7875 0.77s | none -0.975 | paper -0.974 | exact -0.942 | copy@2 -0.873
+[qwen2.5-14b-bf16-dg] [157/?] multi_turn_base_24 T=7027 0.7s | none -2.048 | paper -2.049 | exact -2.069 | copy@2 -2.043
+[qwen2.5-14b-bf16-dg] [158/?] multi_turn_base_97 T=7866 0.78s | none -1.305 | paper -1.305 | exact -1.312 | copy@2 -1.281
+[qwen2.5-14b-bf16-dg] [159/?] multi_turn_base_182 T=6442 0.63s | none -0.564 | paper -0.564 | exact -0.570 | copy@2 -0.564
+[qwen2.5-14b-bf16-dg] [160/?] multi_turn_base_190 T=8863 0.87s | none -0.711 | paper -0.711 | exact -0.720 | copy@2 -0.707
+[qwen2.5-14b-bf16-dg] [161/?] multi_turn_base_86 T=9095 0.9s | none -0.546 | paper -0.546 | exact -0.545 | copy@2 -0.579
+[qwen2.5-14b-bf16-dg] [162/?] multi_turn_base_181 T=8843 0.87s | none -0.458 | paper -0.458 | exact -0.470 | copy@2 -0.458
+[qwen2.5-14b-bf16-dg] [163/?] multi_turn_base_39 T=4636 0.46s | none -3.158 | paper -3.159 | exact -3.209 | copy@2 -3.379
+[qwen2.5-14b-bf16-dg] [164/?] multi_turn_base_168 T=8621 0.84s | none -0.815 | paper -0.814 | exact -0.802 | copy@2 -0.730
+[qwen2.5-14b-bf16-dg] [165/?] multi_turn_base_87 T=5639 0.57s | none -0.577 | paper -0.574 | exact -0.445 | copy@2 -0.434
+[qwen2.5-14b-bf16-dg] [166/?] multi_turn_base_185 T=8043 0.79s | none -0.826 | paper -0.826 | exact -0.831 | copy@2 -0.916
+[qwen2.5-14b-bf16-dg] [167/?] multi_turn_base_40 T=6224 0.6s | none -0.000 | paper -0.000 | exact -0.000 | copy@2 -0.000
+[qwen2.5-14b-bf16-dg] [168/?] multi_turn_base_1 T=4644 0.48s | none -0.710 | paper -0.708 | exact -0.628 | copy@2 -0.719
+[qwen2.5-14b-bf16-dg] [169/?] multi_turn_base_71 T=5610 0.57s | none -1.526 | paper -1.525 | exact -1.500 | copy@2 -1.578
+[qwen2.5-14b-bf16-dg] [170/?] multi_turn_base_150 T=6436 0.64s | none -0.986 | paper -0.986 | exact -0.983 | copy@2 -0.988
+[qwen2.5-14b-bf16-dg] [171/?] multi_turn_base_114 T=8501 0.83s | none -3.471 | paper -3.473 | exact -3.710 | copy@2 -3.290
+[qwen2.5-14b-bf16-dg] [172/?] multi_turn_base_56 T=5630 0.58s | none -1.493 | paper -1.493 | exact -1.477 | copy@2 -1.551
+[qwen2.5-14b-bf16-dg] [173/?] multi_turn_base_107 T=6282 0.63s | none -4.552 | paper -4.554 | exact -4.700 | copy@2 -4.330
+[qwen2.5-14b-bf16-dg] [174/?] multi_turn_base_191 T=6444 0.66s | none -0.469 | paper -0.469 | exact -0.471 | copy@2 -0.467
+[qwen2.5-14b-bf16-dg] [175/?] multi_turn_base_166 T=8013 0.79s | none -1.369 | paper -1.369 | exact -1.374 | copy@2 -1.361
+[qwen2.5-14b-bf16-dg] [176/?] multi_turn_base_50 T=5670 0.57s | none -0.474 | paper -0.474 | exact -0.478 | copy@2 -0.474
+[qwen2.5-14b-bf16-dg] [177/?] multi_turn_base_143 T=7870 0.77s | none -2.697 | paper -2.698 | exact -2.764 | copy@2 -2.498
+[qwen2.5-14b-bf16-dg] [178/?] multi_turn_base_197 T=8117 0.8s | none -0.827 | paper -0.827 | exact -0.832 | copy@2 -0.836
+[qwen2.5-14b-bf16-dg] [179/?] multi_turn_base_154 T=8673 0.85s | none -0.415 | paper -0.415 | exact -0.422 | copy@2 -0.415
+[qwen2.5-14b-bf16-dg] [180/?] multi_turn_base_129 T=8695 0.85s | none -1.178 | paper -1.178 | exact -1.195 | copy@2 -1.063
+[qwen2.5-14b-bf16-dg] [181/?] multi_turn_base_59 T=8757 0.85s | none -1.668 | paper -1.668 | exact -1.642 | copy@2 -1.715
+[qwen2.5-14b-bf16-dg] [182/?] multi_turn_base_55 T=8031 0.79s | none -1.003 | paper -1.003 | exact -0.987 | copy@2 -1.065
+[qwen2.5-14b-bf16-dg] [183/?] multi_turn_base_23 T=7048 0.7s | none -1.326 | paper -1.326 | exact -1.353 | copy@2 -1.386
+[qwen2.5-14b-bf16-dg] [184/?] multi_turn_base_7 T=8121 0.8s | none -1.051 | paper -1.052 | exact -1.079 | copy@2 -1.051
+[qwen2.5-14b-bf16-dg] [185/?] multi_turn_base_8 T=8135 0.8s | none -2.097 | paper -2.098 | exact -2.139 | copy@2 -2.110
+[qwen2.5-14b-bf16-dg] [186/?] multi_turn_base_108 T=7888 0.78s | none -0.028 | paper -0.028 | exact -0.037 | copy@2 -0.028
+[qwen2.5-14b-bf16-dg] [187/?] multi_turn_base_151 T=9941 0.99s | none -0.168 | paper -0.168 | exact -0.170 | copy@2 -0.191
+[qwen2.5-14b-bf16-dg] [188/?] multi_turn_base_22 T=8126 0.79s | none -1.219 | paper -1.219 | exact -1.200 | copy@2 -1.219
+[qwen2.5-14b-bf16-dg] [189/?] multi_turn_base_139 T=8992 0.89s | none -2.644 | paper -2.645 | exact -2.708 | copy@2 -2.445
+[qwen2.5-14b-bf16-dg] [190/?] multi_turn_base_173 T=8808 0.87s | none -0.559 | paper -0.560 | exact -0.574 | copy@2 -0.559
+[qwen2.5-14b-bf16-dg] [191/?] multi_turn_base_26 T=4651 0.49s | none -0.954 | paper -0.956 | exact -1.015 | copy@2 -0.954
+[qwen2.5-14b-bf16-dg] [192/?] multi_turn_base_188 T=9902 0.96s | none -0.686 | paper -0.686 | exact -0.703 | copy@2 -0.716
+[qwen2.5-14b-bf16-dg] [193/?] multi_turn_base_35 T=7773 0.76s | none -4.187 | paper -4.187 | exact -4.166 | copy@2 -4.435
+[qwen2.5-14b-bf16-dg] [194/?] multi_turn_base_57 T=8763 0.86s | none -1.609 | paper -1.609 | exact -1.607 | copy@2 -1.627
+[qwen2.5-14b-bf16-dg] [195/?] multi_turn_base_62 T=7884 0.79s | none -1.166 | paper -1.166 | exact -1.165 | copy@2 -1.177
+[qwen2.5-14b-bf16-dg] [196/?] multi_turn_base_70 T=5672 0.58s | none -0.638 | paper -0.639 | exact -0.649 | copy@2 -0.684
+[qwen2.5-14b-bf16-dg] [197/?] multi_turn_base_189 T=9933 0.98s | none -0.597 | paper -0.597 | exact -0.588 | copy@2 -0.586
+[qwen2.5-14b-bf16-dg] [198/?] multi_turn_base_6 T=4656 0.49s | none -2.023 | paper -2.023 | exact -2.042 | copy@2 -2.022
+[qwen2.5-14b-bf16-dg] [199/?] multi_turn_base_28 T=7754 0.77s | none -2.354 | paper -2.356 | exact -2.525 | copy@2 -2.576
+[qwen2.5-14b-bf16-dg] [200/?] multi_turn_base_163 T=6465 0.65s | none -0.311 | paper -0.311 | exact -0.308 | copy@2 -0.314
+done: 200 new examples saved
+Stopping app - local entrypoint completed.
+✓ App completed. View run at 
+[Modal dashboard link removed]

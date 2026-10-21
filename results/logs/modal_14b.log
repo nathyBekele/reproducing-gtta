@@ -1,0 +1,227 @@
+✓ Initialized. View run at 
+[Modal dashboard link removed]
+✓ Created objects.
+├── ✓ Uploaded 
+│   ./scripts/modal_run.py
+├── ✓ Uploaded ./sa
+├── ✓ Uploaded ./data/bfcl_v3
+└── ✓ Created Function run.
+GPU=H100, hard limit 60 min, 0 examples already saved (skipped)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+[1AFetching 8 files:   0%|          | 0/8 [00:00<?, ?it/s]
+[1AFetching 8 files:  12%|█▎        | 1/8 [00:35<04:05, 35.04s/it]
+[1AFetching 8 files:  25%|██▌       | 2/8 [00:46<02:08, 21.34s/it]
+[1AFetching 8 files:  38%|███▊      | 3/8 [00:51<01:09, 13.86s/it]
+[1AFetching 8 files:  50%|█████     | 4/8 [00:59<00:45, 11.41s/it]
+[1AFetching 8 files:  62%|██████▎   | 5/8 [01:08<00:31, 10.40s/it]
+[1AFetching 8 files:  75%|███████▌  | 6/8 [01:21<00:22, 11.39s/it]
+[1AFetching 8 files:  88%|████████▊ | 7/8 [01:25<00:09,  9.06s/it]
+[1AFetching 8 files: 100%|██████████| 8/8 [01:26<00:00,  6.50s/it]Fetching 8 files: 100%|██████████| 8/8 [01:26<00:00, 10.83s/it]
+
+[1ALoading weights:   0%|          | 0/579 [00:00<?, ?it/s]Loading weights: 100%|██████████| 579/579 [00:00<00:00, 8882.99it/s]
+model loaded in 97.3s on cuda (torch.bfloat16)
+[1/?] multi_turn_base_66 T=4933 1.53s | none -1.650 | paper -1.649 | exact -1.605 | copy@2 -1.761
+[2/?] multi_turn_base_187 T=6081 0.62s | none -0.653 | paper -0.654 | exact -0.659 | copy@2 -0.685
+[3/?] multi_turn_base_101 T=5558 1.03s | none -1.610 | paper -1.610 | exact -1.640 | copy@2 -1.537
+[4/?] multi_turn_base_193 T=6067 0.61s | none -0.250 | paper -0.250 | exact -0.252 | copy@2 -0.253
+[5/?] multi_turn_base_111 T=5551 0.57s | none -1.544 | paper -1.546 | exact -1.639 | copy@2 -1.676
+[6/?] multi_turn_base_121 T=3974 0.42s | none -1.574 | paper -1.575 | exact -1.611 | copy@2 -1.574
+[7/?] multi_turn_base_13 T=6380 0.64s | none -3.069 | paper -3.069 | exact -3.064 | copy@2 -3.163
+[8/?] multi_turn_base_2 T=5377 0.55s | none -1.598 | paper -1.599 | exact -1.682 | copy@2 -1.712
+[9/?] multi_turn_base_64 T=4870 0.53s | none -1.016 | paper -1.016 | exact -1.016 | copy@2 -1.059
+[10/?] multi_turn_base_44 T=6193 0.63s | none -0.825 | paper -0.825 | exact -0.834 | copy@2 -0.853
+[11/?] multi_turn_base_136 T=6447 0.65s | none -1.521 | paper -1.522 | exact -1.605 | copy@2 -1.578
+[12/?] multi_turn_base_170 T=7059 0.73s | none -0.458 | paper -0.457 | exact -0.446 | copy@2 -0.464
+[13/?] multi_turn_base_128 T=3977 0.43s | none -1.071 | paper -1.071 | exact -1.098 | copy@2 -1.071
+[14/?] multi_turn_base_76 T=7593 0.76s | none -0.858 | paper -0.858 | exact -0.833 | copy@2 -0.901
+[15/?] multi_turn_base_158 T=4321 0.47s | none -0.374 | paper -0.374 | exact -0.372 | copy@2 -0.374
+[16/?] multi_turn_base_167 T=4308 0.45s | none -0.648 | paper -0.648 | exact -0.642 | copy@2 -0.637
+[17/?] multi_turn_base_45 T=6138 0.62s | none -0.597 | paper -0.597 | exact -0.625 | copy@2 -0.597
+[18/?] multi_turn_base_130 T=3978 0.42s | none -2.092 | paper -2.092 | exact -2.119 | copy@2 -2.082
+[19/?] multi_turn_base_30 T=6383 0.61s | none -3.242 | paper -3.240 | exact -3.149 | copy@2 -3.242
+[20/?] multi_turn_base_3 T=3673 0.4s | none -3.636 | paper -3.638 | exact -3.680 | copy@2 -3.636
+[21/?] multi_turn_base_159 T=4314 0.45s | none -0.830 | paper -0.829 | exact -0.822 | copy@2 -0.835
+[22/?] multi_turn_base_15 T=6163 0.63s | none -1.734 | paper -1.735 | exact -1.759 | copy@2 -1.742
+[23/?] multi_turn_base_42 T=6147 0.62s | none -2.433 | paper -2.435 | exact -2.541 | copy@2 -2.600
+[24/?] multi_turn_base_126 T=3984 0.43s | none -0.000 | paper -0.000 | exact -0.000 | copy@2 -0.000
+[25/?] multi_turn_base_186 T=7012 0.71s | none -0.656 | paper -0.656 | exact -0.670 | copy@2 -0.649
+[26/?] multi_turn_base_162 T=5990 0.6s | none -0.002 | paper -0.002 | exact -0.003 | copy@2 -0.002
+[27/?] multi_turn_base_47 T=6147 0.62s | none -2.640 | paper -2.645 | exact -2.931 | copy@2 -2.642
+[28/?] multi_turn_base_110 T=5689 0.57s | none -0.000 | paper -0.000 | exact -0.000 | copy@2 -0.000
+[29/?] multi_turn_base_5 T=6371 0.64s | none -4.888 | paper -4.888 | exact -4.950 | copy@2 -5.099
+[30/?] multi_turn_base_194 T=4323 0.46s | none -0.883 | paper -0.883 | exact -0.882 | copy@2 -0.875
+[31/?] multi_turn_base_37 T=3657 0.39s | none -8.829 | paper -8.832 | exact -8.913 | copy@2 -8.788
+[32/?] multi_turn_base_122 T=3977 0.42s | none -1.294 | paper -1.293 | exact -1.279 | copy@2 -1.207
+[33/?] multi_turn_base_12 T=3667 0.4s | none -0.789 | paper -0.789 | exact -0.808 | copy@2 -0.792
+[34/?] multi_turn_base_36 T=6144 0.61s | none -1.082 | paper -1.081 | exact -1.044 | copy@2 -1.050
+[35/?] multi_turn_base_153 T=4350 0.45s | none -0.405 | paper -0.405 | exact -0.406 | copy@2 -0.405
+[36/?] multi_turn_base_69 T=7577 0.75s | none -1.373 | paper -1.373 | exact -1.356 | copy@2 -1.374
+[37/?] multi_turn_base_61 T=6451 0.65s | none -1.513 | paper -1.512 | exact -1.476 | copy@2 -1.531
+[38/?] multi_turn_base_195 T=7018 0.7s | none -0.635 | paper -0.635 | exact -0.623 | copy@2 -0.633
+[39/?] multi_turn_base_32 T=6155 0.62s | none -0.561 | paper -0.561 | exact -0.570 | copy@2 -0.561
+[40/?] multi_turn_base_172 T=5943 0.6s | none -0.396 | paper -0.396 | exact -0.398 | copy@2 -0.396
+[41/?] multi_turn_base_171 T=5940 0.63s | none -0.411 | paper -0.411 | exact -0.399 | copy@2 -0.396
+[42/?] multi_turn_base_60 T=6599 0.66s | none -1.057 | paper -1.056 | exact -1.035 | copy@2 -1.065
+[43/?] multi_turn_base_10 T=3655 0.39s | none -2.559 | paper -2.555 | exact -2.467 | copy@2 -2.702
+[44/?] multi_turn_base_144 T=6436 0.64s | none -1.601 | paper -1.601 | exact -1.609 | copy@2 -1.592
+[45/?] multi_turn_base_160 T=6048 0.62s | none -0.541 | paper -0.540 | exact -0.507 | copy@2 -0.580
+[46/?] multi_turn_base_52 T=7578 0.75s | none -2.355 | paper -2.354 | exact -2.288 | copy@2 -2.259
+[47/?] multi_turn_base_125 T=5687 0.57s | none -0.272 | paper -0.272 | exact -0.284 | copy@2 -0.272
+[48/?] multi_turn_base_106 T=5695 0.57s | none -2.107 | paper -2.107 | exact -2.111 | copy@2 -2.158
+[49/?] multi_turn_base_73 T=4884 0.51s | none -0.294 | paper -0.291 | exact -0.228 | copy@2 -0.360
+[50/?] multi_turn_base_113 T=5564 0.56s | none -4.717 | paper -4.718 | exact -4.780 | copy@2 -4.916
+[51/?] multi_turn_base_105 T=3950 0.42s | none -2.799 | paper -2.810 | exact -3.128 | copy@2 -2.799
+[52/?] multi_turn_base_95 T=6447 0.65s | none -1.438 | paper -1.437 | exact -1.401 | copy@2 -1.357
+[53/?] multi_turn_base_103 T=5537 0.57s | none -2.455 | paper -2.457 | exact -2.532 | copy@2 -2.634
+[54/?] multi_turn_base_145 T=5560 0.56s | none -1.982 | paper -1.987 | exact -2.245 | copy@2 -2.206
+[55/?] multi_turn_base_43 T=5246 0.54s | none -0.000 | paper -0.000 | exact -0.000 | copy@2 -0.000
+[56/?] multi_turn_base_0 T=6364 0.64s | none -0.605 | paper -0.604 | exact -0.570 | copy@2 -0.519
+[57/?] multi_turn_base_161 T=6814 0.69s | none -0.261 | paper -0.261 | exact -0.265 | copy@2 -0.261
+[58/?] multi_turn_base_192 T=4290 0.46s | none -0.719 | paper -0.719 | exact -0.719 | copy@2 -0.719
+[59/?] multi_turn_base_16 T=3688 0.4s | none -1.241 | paper -1.241 | exact -1.252 | copy@2 -1.234
+[60/?] multi_turn_base_80 T=7344 0.73s | none -1.907 | paper -1.907 | exact -1.878 | copy@2 -1.956
+[61/?] multi_turn_base_102 T=5684 0.58s | none -1.642 | paper -1.642 | exact -1.667 | copy@2 -1.616
+[62/?] multi_turn_base_38 T=3673 0.4s | none -1.364 | paper -1.364 | exact -1.371 | copy@2 -1.364
+[63/?] multi_turn_base_156 T=6038 0.62s | none -0.103 | paper -0.103 | exact -0.099 | copy@2 -0.111
+[64/?] multi_turn_base_176 T=6067 0.62s | none -0.480 | paper -0.480 | exact -0.483 | copy@2 -0.495
+[65/?] multi_turn_base_135 T=3960 0.42s | none -1.265 | paper -1.264 | exact -1.267 | copy@2 -1.203
+[66/?] multi_turn_base_78 T=7591 0.75s | none -0.000 | paper -0.000 | exact -0.001 | copy@2 -0.001
+[67/?] multi_turn_base_115 T=3955 0.41s | none -1.796 | paper -1.797 | exact -1.828 | copy@2 -1.773
+[68/?] multi_turn_base_19 T=5239 0.53s | none -2.819 | paper -2.821 | exact -2.878 | copy@2 -2.819
+[69/?] multi_turn_base_14 T=5241 0.53s | none -2.271 | paper -2.272 | exact -2.340 | copy@2 -2.271
+[70/?] multi_turn_base_177 T=6062 0.61s | none -0.176 | paper -0.176 | exact -0.172 | copy@2 -0.167
+[71/?] multi_turn_base_146 T=3956 0.42s | none -0.000 | paper -0.000 | exact -0.000 | copy@2 -0.000
+[72/?] multi_turn_base_179 T=4340 0.46s | none -0.266 | paper -0.266 | exact -0.255 | copy@2 -0.262
+[73/?] multi_turn_base_65 T=7671 0.76s | none -0.523 | paper -0.522 | exact -0.502 | copy@2 -0.516
+[74/?] multi_turn_base_84 T=4881 0.52s | none -0.747 | paper -0.746 | exact -0.714 | copy@2 -0.697
+[75/?] multi_turn_base_165 T=6009 0.61s | none -0.359 | paper -0.359 | exact -0.360 | copy@2 -0.359
+[76/?] multi_turn_base_46 T=5237 0.55s | none -3.240 | paper -3.240 | exact -3.234 | copy@2 -3.245
+[77/?] multi_turn_base_104 T=4030 0.42s | none -2.213 | paper -2.215 | exact -2.283 | copy@2 -2.265
+[78/?] multi_turn_base_79 T=4867 0.5s | none -0.345 | paper -0.345 | exact -0.342 | copy@2 -0.345
+[79/?] multi_turn_base_54 T=7571 0.76s | none -1.149 | paper -1.148 | exact -1.123 | copy@2 -1.183
+[80/?] multi_turn_base_196 T=6036 0.62s | none -0.601 | paper -0.601 | exact -0.603 | copy@2 -0.672
+[81/?] multi_turn_base_85 T=4870 0.52s | none -2.046 | paper -2.045 | exact -2.016 | copy@2 -2.096
+[82/?] multi_turn_base_118 T=3968 0.42s | none -0.000 | paper -0.000 | exact -0.000 | copy@2 -0.000
+[83/?] multi_turn_base_109 T=6666 0.67s | none -1.456 | paper -1.456 | exact -1.487 | copy@2 -1.456
+[84/?] multi_turn_base_133 T=5677 0.57s | none -0.760 | paper -0.761 | exact -0.784 | copy@2 -0.760
+[85/?] multi_turn_base_142 T=3961 0.42s | none -2.360 | paper -2.362 | exact -2.401 | copy@2 -2.363
+[86/?] multi_turn_base_33 T=5248 0.5s | none -4.924 | paper -4.927 | exact -5.076 | copy@2 -4.924
+[87/?] multi_turn_base_18 T=6371 0.69s | none -1.589 | paper -1.589 | exact -1.578 | copy@2 -1.590
+[88/?] multi_turn_base_140 T=5689 0.59s | none -2.133 | paper -2.134 | exact -2.189 | copy@2 -2.133
+[89/?] multi_turn_base_123 T=3987 0.44s | none -1.421 | paper -1.419 | exact -1.401 | copy@2 -1.562
+[90/?] multi_turn_base_175 T=7032 0.72s | none -0.396 | paper -0.395 | exact -0.384 | copy@2 -0.403
+[91/?] multi_turn_base_63 T=6456 0.66s | none -0.000 | paper -0.000 | exact -0.000 | copy@2 -0.000
+[92/?] multi_turn_base_83 T=4888 0.52s | none -0.279 | paper -0.279 | exact -0.285 | copy@2 -0.366
+[93/?] multi_turn_base_148 T=5690 0.58s | none -2.035 | paper -2.033 | exact -1.975 | copy@2 -2.074
+[94/?] multi_turn_base_100 T=3982 0.4s | none -2.082 | paper -2.083 | exact -2.131 | copy@2 -2.082
+[95/?] multi_turn_base_155 T=4333 0.46s | none -0.171 | paper -0.171 | exact -0.166 | copy@2 -0.151
+[96/?] multi_turn_base_72 T=6436 0.65s | none -1.589 | paper -1.588 | exact -1.545 | copy@2 -1.585
+[97/?] multi_turn_base_27 T=5385 0.56s | none -3.292 | paper -3.292 | exact -3.283 | copy@2 -3.103
+[98/?] multi_turn_base_184 T=5922 0.62s | none -0.203 | paper -0.203 | exact -0.202 | copy@2 -0.202
+[99/?] multi_turn_base_112 T=6458 0.65s | none -0.890 | paper -0.891 | exact -0.938 | copy@2 -0.890
+[100/?] multi_turn_base_51 T=6459 0.65s | none -0.245 | paper -0.245 | exact -0.273 | copy@2 -0.245
+[101/?] multi_turn_base_174 T=7034 0.72s | none -0.406 | paper -0.406 | exact -0.400 | copy@2 -0.441
+[102/?] multi_turn_base_4 T=6362 0.64s | none -1.007 | paper -1.011 | exact -1.266 | copy@2 -1.345
+[103/?] multi_turn_base_29 T=3657 0.37s | none -0.945 | paper -0.945 | exact -0.958 | copy@2 -0.945
+[104/?] multi_turn_base_183 T=7018 0.7s | none -0.313 | paper -0.313 | exact -0.309 | copy@2 -0.313
+[105/?] multi_turn_base_99 T=4889 0.52s | none -0.863 | paper -0.862 | exact -0.816 | copy@2 -0.858
+[106/?] multi_turn_base_98 T=7369 0.74s | none -0.507 | paper -0.507 | exact -0.510 | copy@2 -0.507
+[107/?] multi_turn_base_131 T=5541 0.56s | none -0.000 | paper -0.000 | exact -0.000 | copy@2 -0.001
+[108/?] multi_turn_base_124 T=6473 0.65s | none -0.922 | paper -0.921 | exact -0.892 | copy@2 -0.818
+[109/?] multi_turn_base_198 T=7144 0.72s | none -0.259 | paper -0.259 | exact -0.259 | copy@2 -0.253
+[110/?] multi_turn_base_134 T=6481 0.66s | none -1.154 | paper -1.156 | exact -1.343 | copy@2 -1.238
+[111/?] multi_turn_base_178 T=6082 0.59s | none -0.669 | paper -0.669 | exact -0.664 | copy@2 -0.669
+[112/?] multi_turn_base_120 T=3949 0.79s | none -2.095 | paper -2.095 | exact -2.131 | copy@2 -2.079
+[113/?] multi_turn_base_34 T=6143 0.61s | none -2.656 | paper -2.657 | exact -2.677 | copy@2 -2.656
+[114/?] multi_turn_base_48 T=5414 0.55s | none -3.146 | paper -3.146 | exact -3.155 | copy@2 -3.146
+[115/?] multi_turn_base_169 T=5974 0.61s | none -0.347 | paper -0.347 | exact -0.345 | copy@2 -0.350
+[116/?] multi_turn_base_138 T=5559 0.56s | none -2.152 | paper -2.157 | exact -2.384 | copy@2 -2.158
+[117/?] multi_turn_base_149 T=5570 0.56s | none -5.259 | paper -5.261 | exact -5.328 | copy@2 -5.259
+[118/?] multi_turn_base_132 T=3955 0.39s | none -1.734 | paper -1.735 | exact -1.773 | copy@2 -1.726
+[119/?] multi_turn_base_127 T=3965 0.42s | none -0.000 | paper -0.000 | exact -0.000 | copy@2 -0.000
+[120/?] multi_turn_base_21 T=6398 0.64s | none -1.537 | paper -1.537 | exact -1.523 | copy@2 -1.537
+[121/?] multi_turn_base_81 T=7377 0.73s | none -0.208 | paper -0.208 | exact -0.236 | copy@2 -0.318
+[122/?] multi_turn_base_77 T=7571 0.76s | none -1.848 | paper -1.848 | exact -1.804 | copy@2 -1.833
+[123/?] multi_turn_base_9 T=3658 0.4s | none -2.236 | paper -2.238 | exact -2.270 | copy@2 -2.236
+[124/?] multi_turn_base_82 T=4902 0.5s | none -2.721 | paper -2.720 | exact -2.689 | copy@2 -2.739
+[125/?] multi_turn_base_164 T=4315 0.45s | none -0.637 | paper -0.638 | exact -0.664 | copy@2 -0.634
+[126/?] multi_turn_base_119 T=5673 0.57s | none -2.072 | paper -2.073 | exact -2.143 | copy@2 -2.136
+[127/?] multi_turn_base_89 T=4862 0.5s | none -1.225 | paper -1.225 | exact -1.207 | copy@2 -1.240
+[128/?] multi_turn_base_68 T=7594 0.75s | none -1.206 | paper -1.205 | exact -1.170 | copy@2 -1.168
+[129/?] multi_turn_base_53 T=7582 0.75s | none -0.998 | paper -0.996 | exact -0.843 | copy@2 -0.845
+[130/?] multi_turn_base_90 T=7594 0.74s | none -0.908 | paper -0.907 | exact -0.891 | copy@2 -0.961
+[131/?] multi_turn_base_94 T=4912 0.51s | none -0.241 | paper -0.240 | exact -0.201 | copy@2 -0.244
+[132/?] multi_turn_base_41 T=5242 0.55s | none -2.852 | paper -2.851 | exact -2.839 | copy@2 -2.909
+[133/?] multi_turn_base_93 T=4869 0.5s | none -4.744 | paper -4.744 | exact -4.779 | copy@2 -4.744
+[134/?] multi_turn_base_116 T=3958 0.41s | none -0.000 | paper -0.000 | exact -0.000 | copy@2 -0.000
+[135/?] multi_turn_base_199 T=5906 0.63s | none -0.169 | paper -0.169 | exact -0.167 | copy@2 -0.165
+[136/?] multi_turn_base_157 T=6746 0.72s | none -0.000 | paper -0.000 | exact -0.000 | copy@2 -0.000
+[137/?] multi_turn_base_25 T=3661 0.41s | none -2.777 | paper -2.776 | exact -2.767 | copy@2 -2.777
+[138/?] multi_turn_base_180 T=6032 0.63s | none -0.600 | paper -0.599 | exact -0.570 | copy@2 -0.612
+[139/?] multi_turn_base_147 T=6738 0.68s | none -1.207 | paper -1.207 | exact -1.201 | copy@2 -1.269
+[140/?] multi_turn_base_74 T=7356 0.75s | none -0.600 | paper -0.601 | exact -0.670 | copy@2 -0.647
+[141/?] multi_turn_base_58 T=7580 0.76s | none -1.995 | paper -1.994 | exact -1.933 | copy@2 -2.081
+[142/?] multi_turn_base_152 T=6076 0.65s | none -0.428 | paper -0.428 | exact -0.432 | copy@2 -0.427
+[143/?] multi_turn_base_17 T=5248 0.54s | none -0.000 | paper -0.000 | exact -0.000 | copy@2 -0.001
+[144/?] multi_turn_base_49 T=6159 0.63s | none -0.001 | paper -0.001 | exact -0.001 | copy@2 -0.001
+[145/?] multi_turn_base_92 T=4883 0.52s | none -0.496 | paper -0.496 | exact -0.501 | copy@2 -0.496
+[146/?] multi_turn_base_75 T=7589 0.74s | none -2.252 | paper -2.251 | exact -2.178 | copy@2 -2.406
+[147/?] multi_turn_base_141 T=5560 0.58s | none -0.958 | paper -0.959 | exact -0.980 | copy@2 -0.958
+[148/?] multi_turn_base_20 T=6367 0.67s | none -2.638 | paper -2.638 | exact -2.591 | copy@2 -2.417
+[149/?] multi_turn_base_96 T=4897 0.52s | none -0.837 | paper -0.836 | exact -0.814 | copy@2 -0.837
+[150/?] multi_turn_base_31 T=6219 0.64s | none -1.159 | paper -1.159 | exact -1.155 | copy@2 -1.147
+[151/?] multi_turn_base_137 T=5556 0.59s | none -0.888 | paper -0.889 | exact -0.948 | copy@2 -0.897
+[152/?] multi_turn_base_117 T=3978 0.39s | none -2.029 | paper -2.030 | exact -2.062 | copy@2 -2.030
+[153/?] multi_turn_base_11 T=6361 0.65s | none -1.614 | paper -1.617 | exact -1.838 | copy@2 -2.002
+[154/?] multi_turn_base_67 T=6435 0.66s | none -1.734 | paper -1.734 | exact -1.722 | copy@2 -1.847
+[155/?] multi_turn_base_88 T=7566 0.76s | none -0.000 | paper -0.000 | exact -0.000 | copy@2 -0.000
+[156/?] multi_turn_base_91 T=6474 0.66s | none -1.031 | paper -1.031 | exact -1.020 | copy@2 -0.951
+[157/?] multi_turn_base_24 T=5367 0.55s | none -3.069 | paper -3.070 | exact -3.102 | copy@2 -3.135
+[158/?] multi_turn_base_97 T=6465 0.65s | none -1.279 | paper -1.278 | exact -1.268 | copy@2 -1.274
+[159/?] multi_turn_base_182 T=4328 0.44s | none -0.429 | paper -0.429 | exact -0.430 | copy@2 -0.429
+[160/?] multi_turn_base_190 T=6067 0.62s | none -0.468 | paper -0.468 | exact -0.470 | copy@2 -0.470
+[161/?] multi_turn_base_86 T=7575 0.75s | none -0.469 | paper -0.469 | exact -0.459 | copy@2 -0.502
+[162/?] multi_turn_base_181 T=6047 0.6s | none -0.401 | paper -0.401 | exact -0.401 | copy@2 -0.401
+[163/?] multi_turn_base_39 T=3658 0.36s | none -2.315 | paper -2.315 | exact -2.321 | copy@2 -2.523
+[164/?] multi_turn_base_168 T=5864 0.6s | none -0.679 | paper -0.679 | exact -0.657 | copy@2 -0.594
+[165/?] multi_turn_base_87 T=4881 0.5s | none -0.617 | paper -0.614 | exact -0.487 | copy@2 -0.463
+[166/?] multi_turn_base_185 T=5929 0.6s | none -0.760 | paper -0.760 | exact -0.754 | copy@2 -0.773
+[167/?] multi_turn_base_40 T=5246 0.51s | none -0.000 | paper -0.000 | exact -0.000 | copy@2 -0.000
+[168/?] multi_turn_base_1 T=3666 0.39s | none -2.632 | paper -2.628 | exact -2.587 | copy@2 -2.696
+[169/?] multi_turn_base_71 T=4852 0.5s | none -1.629 | paper -1.628 | exact -1.599 | copy@2 -1.664
+[170/?] multi_turn_base_150 T=4322 0.46s | none -0.644 | paper -0.644 | exact -0.639 | copy@2 -0.642
+[171/?] multi_turn_base_114 T=5543 0.56s | none -2.739 | paper -2.741 | exact -2.917 | copy@2 -3.158
+[172/?] multi_turn_base_56 T=4872 0.52s | none -1.548 | paper -1.547 | exact -1.527 | copy@2 -1.560
+[173/?] multi_turn_base_107 T=3967 0.42s | none -4.554 | paper -4.563 | exact -4.799 | copy@2 -4.554
+[174/?] multi_turn_base_191 T=4330 0.46s | none -0.412 | paper -0.412 | exact -0.410 | copy@2 -0.412
+[175/?] multi_turn_base_166 T=5899 0.6s | none -1.195 | paper -1.195 | exact -1.187 | copy@2 -1.186
+[176/?] multi_turn_base_50 T=4912 0.51s | none -0.512 | paper -0.512 | exact -0.514 | copy@2 -0.512
+[177/?] multi_turn_base_143 T=5555 0.57s | none -1.259 | paper -1.259 | exact -1.273 | copy@2 -1.279
+[178/?] multi_turn_base_197 T=6003 0.62s | none -0.705 | paper -0.705 | exact -0.697 | copy@2 -0.703
+[179/?] multi_turn_base_154 T=5916 0.6s | none -0.384 | paper -0.384 | exact -0.381 | copy@2 -0.384
+[180/?] multi_turn_base_129 T=5698 0.57s | none -1.544 | paper -1.544 | exact -1.556 | copy@2 -1.544
+[181/?] multi_turn_base_59 T=7355 0.74s | none -1.711 | paper -1.711 | exact -1.696 | copy@2 -1.724
+[182/?] multi_turn_base_55 T=6591 0.66s | none -1.326 | paper -1.325 | exact -1.287 | copy@2 -1.355
+[183/?] multi_turn_base_23 T=5388 0.56s | none -0.862 | paper -0.862 | exact -0.887 | copy@2 -0.922
+[184/?] multi_turn_base_7 T=6381 0.64s | none -0.496 | paper -0.496 | exact -0.474 | copy@2 -0.496
+[185/?] multi_turn_base_8 T=6395 0.64s | none -2.010 | paper -2.010 | exact -2.016 | copy@2 -2.030
+[186/?] multi_turn_base_108 T=5573 0.57s | none -0.000 | paper -0.000 | exact -0.000 | copy@2 -0.000
+[187/?] multi_turn_base_151 T=7065 0.72s | none -0.225 | paper -0.225 | exact -0.220 | copy@2 -0.260
+[188/?] multi_turn_base_22 T=6386 0.65s | none -0.838 | paper -0.838 | exact -0.804 | copy@2 -0.838
+[189/?] multi_turn_base_139 T=6677 0.68s | none -1.383 | paper -1.385 | exact -1.464 | copy@2 -1.384
+[190/?] multi_turn_base_173 T=6012 0.61s | none -0.408 | paper -0.408 | exact -0.410 | copy@2 -0.408
+[191/?] multi_turn_base_26 T=3673 0.4s | none -0.668 | paper -0.669 | exact -0.699 | copy@2 -0.668
+[192/?] multi_turn_base_188 T=7026 0.71s | none -0.587 | paper -0.587 | exact -0.580 | copy@2 -0.586
+[193/?] multi_turn_base_35 T=6151 0.62s | none -4.200 | paper -4.199 | exact -4.129 | copy@2 -4.464
+[194/?] multi_turn_base_57 T=7361 0.74s | none -1.702 | paper -1.701 | exact -1.690 | copy@2 -1.830
+[195/?] multi_turn_base_62 T=6483 0.66s | none -1.358 | paper -1.358 | exact -1.342 | copy@2 -1.374
+[196/?] multi_turn_base_70 T=4914 0.52s | none -0.714 | paper -0.713 | exact -0.693 | copy@2 -0.740
+[197/?] multi_turn_base_189 T=7057 0.72s | none -0.487 | paper -0.487 | exact -0.476 | copy@2 -0.491
+[198/?] multi_turn_base_6 T=3678 0.4s | none -0.909 | paper -0.908 | exact -0.900 | copy@2 -0.819
+[199/?] multi_turn_base_28 T=6132 0.59s | none -1.888 | paper -1.890 | exact -2.016 | copy@2 -1.888
+[200/?] multi_turn_base_163 T=4351 0.47s | none -0.209 | paper -0.209 | exact -0.203 | copy@2 -0.213
+done: 200 new examples saved to ./results/raw/qwen2.5-14b-bf16
+Stopping app - local entrypoint completed.
+✓ App completed. View run at 
+[Modal dashboard link removed]

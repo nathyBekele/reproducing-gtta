@@ -1,0 +1,16 @@
+{
+  "model": "Qwen/Qwen2.5-14B-Instruct",
+  "gpu": "H100",
+  "rules": "results/dg/dg-14b/dynamics.json",
+  "repeats": 2,
+  "eval_none_rep1": 0.185,
+  "log": [
+    "repeat 1 none: 37/200 (101s)",
+    "repeat 1 dg: 44/200 (132s)",
+    "repeat 2 none: 36/200 (116s)",
+    "repeat 2 dg: 44/200 (142s)"
+  ],
+  "eval_dg_rep1": 0.22,
+  "eval_none_rep2": 0.18,
+  "eval_dg_rep2": 0.22
+}

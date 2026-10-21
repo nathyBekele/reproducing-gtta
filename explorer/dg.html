@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DG Inspector (saved runs) · Reproducing GTTA</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="site.css">
+<script src="config.js"></script>
+<script src="site.js"></script>
+<style>
+.hero p { color: var(--ink-2); margin: 0 0 12px; }
+.split, .pair { display: grid; gap: 16px; align-items: stretch; }
+.split { grid-template-columns: minmax(250px, 320px) minmax(0, 1fr); }
+.pair { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+@media (max-width: 900px) { .split, .pair { grid-template-columns: 1fr; } }
+/* side-by-side panels share one height; only their contents scroll */
+.fixedh { height: 480px; display: flex; flex-direction: column; min-height: 0; }
+.fixedh .grow { flex: 1; min-height: 0; overflow: auto; }
+@media (max-width: 900px) { .fixedh { height: auto; } .fixedh .grow { max-height: 420px; } }
+.howto { font-size: 13px; color: var(--ink-2); margin: -2px 0 10px; max-width: 980px; }
+.apis td { cursor: pointer; }
+.apis tr.sel td { background: var(--accent-soft) !important; }
+.apis tr.sel td:first-child { font-weight: 600; }
+.ruletable td { vertical-align: top; }
+.ruletable td.act { font: 12px/1.45 "IBM Plex Mono", Menlo, monospace; word-break: break-word; width: 40%; }
+.ruletable td.act .api { display: block; font: 11px "IBM Plex Sans", sans-serif; color: var(--muted); margin-bottom: 2px; }
+.ruletable td.eff .bef { display: block; color: var(--muted); font-size: 12px; margin-top: 3px; }
+.ruletable td.src { width: 92px; }
+.ruletable .srcbtn { font-size: 12px; white-space: nowrap; }
+.srcbtn { border: 0; background: none; color: var(--accent); cursor: pointer; padding: 0; font: inherit; }
+.srcbtn:hover { text-decoration: underline; }
+.rulebar { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin-bottom: 8px; }
+.rulebar .search { flex: 1 1 240px; height: 32px; border: 1px solid var(--rule-strong); border-radius: var(--radius); padding: 0 10px; background: var(--bg); font-size: 13.5px; }
+.rulebar .search:focus { outline: 2px solid var(--accent); outline-offset: 0; }
+.taskhead { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin-bottom: 10px; }
+.verdicts { display: flex; flex-wrap: wrap; gap: 10px 28px; align-items: center; margin: 6px 0 12px; }
+.vsum { font-size: 14.5px; font-weight: 600; }
+.vsum.win { color: var(--good); }
+.vsum.loss { color: var(--bad); }
+.vtable { border-collapse: collapse; font-size: 13px; }
+.vtable th { font-weight: 500; color: var(--muted); font-size: 12px; padding: 3px 12px; text-align: center; }
+.vtable td { padding: 4px 12px; border-top: 1px solid var(--rule); text-align: center; white-space: nowrap; }
+.vtable th:first-child, .vtable td:first-child { text-align: left; padding-left: 0; }
+.vtable .pass { color: var(--good); font-weight: 600; }
+.vtable .fail { color: var(--muted); }
+.turn { border: 1px solid var(--rule); border-radius: var(--radius); margin-bottom: 10px; overflow: hidden; }
+.turn-h { padding: 8px 12px; background: var(--panel); border-bottom: 1px solid var(--rule); font-size: 13.5px; }
+.turn-h .n { color: var(--muted); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; margin-right: 8px; }
+.turn-b { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 900px) { .turn-b { grid-template-columns: 1fr; } }
+.col { padding: 8px 12px; border-left: 1px solid var(--rule); min-width: 0; }
+.col:first-child { border-left: 0; }
+@media (max-width: 900px) { .col { border-left: 0; border-top: 1px solid var(--rule); } .col:first-child { border-top: 0; } }
+.col-h { font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin-bottom: 5px; }
+.call { font: 12px/1.45 "IBM Plex Mono", Menlo, monospace; padding: 4px 6px; border-radius: 3px; white-space: pre-wrap; word-break: break-word; margin-bottom: 4px; background: var(--zebra); }
+.call .k { color: var(--muted); margin-right: 6px; }
+.call.said { background: transparent; border-left: 2px solid var(--rule-strong); border-radius: 0; font-family: "IBM Plex Sans", sans-serif; font-size: 12.5px; color: var(--ink-2); font-style: italic; }
+.empty-col { color: var(--muted); font-size: 12.5px; font-style: italic; }
+.steps td { vertical-align: top; }
+.steps td.i { color: var(--muted); width: 28px; font-variant-numeric: tabular-nums; }
+.steps .callc { font: 12px/1.45 "IBM Plex Mono", Menlo, monospace; word-break: break-word; }
+.steps .tool { font: 11.5px/1.4 "IBM Plex Mono", Menlo, monospace; color: var(--ink-2); margin-top: 3px; word-break: break-word; white-space: pre-wrap; }
+.goal { font-size: 13.5px; margin: 0 0 10px; }
+.rulecard { border: 1px solid var(--rule); border-radius: var(--radius); padding: 8px 10px; margin-bottom: 8px; }
+.rulecard .a { font: 12px/1.45 "IBM Plex Mono", Menlo, monospace; word-break: break-word; }
+.rulecard .d { margin: 4px 0 2px; font-size: 13px; }
+.rulecard .s { font-size: 12px; color: var(--ink-2); }
+.lbl { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin-right: 6px; }
+.flash { animation: flash 1.2s ease-out; }
+@keyframes flash { from { background: var(--accent-soft); } to { background: transparent; } }
+</style>
+</head>
+<body>
+<div class="topbar"><div class="in">
+  <a class="brand" href="./" aria-label="Reproducing GTTA, home"><svg class="logo" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="6" fill="var(--accent)"/><path d="M17.6 9.4A6.2 6.2 0 1 0 18.2 13.2" fill="none" stroke="var(--on-accent)" stroke-width="2.2" stroke-linecap="round"/><path d="M18.4 5.4v4.3h-4.3" fill="none" stroke="var(--on-accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="name">Reproducing GTTA</span></a>
+  <nav class="nav" aria-label="Pages"><a href="./">Results</a><a href="try">SA Inspector<span class="pill live" data-tip="Runs the model for you while you wait."><i></i>live</span></a><a href="dg" aria-current="page">DG Inspector<span class="pill" data-tip="Pre-computed: everything shown comes from my saved runs.">saved runs</span></a></nav>
+  <span class="sp"></span>
+  <div class="tb-actions"><a class="btn report-btn" href="report.pdf" data-tip="Open the 2-page report"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg><span>Report</span></a></div>
+</div></div>
+
+<main>
+  <div class="hero">
+    <h1>DG Inspector <span class="pill" style="vertical-align:4px">saved runs</span></h1>
+    <p><span class="term" data-tipkey="dg">Dynamics Grounding (DG)</span> lets the agent explore the tools first, writes down short rules about how they behave, and adds those rules to the prompt. This page is pre-computed: it shows the rules from my runs, where each one came from, and how the agent's calls changed on each task. Nothing runs live here; DG takes minutes of GPU time per run. <span class="term" data-tipkey="selfexplore">Who wrote the rules?</span></p>
+  </div>
+
+  <div class="stats" id="tiles" style="margin-bottom:6px"></div>
+
+  <section class="section" id="rules">
+    <div class="section-head"><span class="num">01</span><h2>The rules DG learned</h2></div>
+    <p class="howto">Each rule records one tool call the agent tried while exploring and what happened. These rules are added to the agent's prompt. Pick an API on the left to see only its rules.</p>
+    <div class="split">
+      <div class="panel fixedh">
+        <h3><span class="term" data-tipkey="kept">Rules per API</span> <span class="muted small" style="font-weight:400">kept of written</span></h3>
+        <div class="grow"><table class="t bars apis" id="apis"></table></div>
+      </div>
+      <div class="panel fixedh">
+        <div class="rulebar">
+          <input class="search" id="rulesearch" type="search" placeholder="Search rules (e.g. cd, token, fuel)" aria-label="Search rules">
+          <span class="small muted" id="rulecount"></span>
+        </div>
+        <div class="grow"><table class="t ruletable" id="ruletable"></table></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="task">
+    <div class="section-head"><span class="num">02</span><h2>One task, with and without the rules</h2></div>
+    <p class="howto">Pick a task. Each turn shows the user's request, the calls BFCL expects, and what the agent actually did without and with the DG rules (run 1). "Said" means the agent answered in text instead of calling a tool.</p>
+    <div class="taskhead">
+      <span class="seg" id="filterseg" role="group" aria-label="Filter tasks"></span>
+      <button class="btn icon" id="prev" aria-label="Previous task">←</button>
+      <select class="select" id="pick" aria-label="Choose a task"></select>
+      <button class="btn icon" id="next" aria-label="Next task">→</button>
+    </div>
+    <div class="meta small muted" id="meta"></div>
+    <div class="verdicts" id="verdicts"></div>
+    <div id="turns"></div>
+    <details><summary id="taskrules-sum">Rules that were in this task's prompt</summary><div class="scrollbox" style="max-height:300px"><table class="t ruletable" id="taskrules"></table></div></details>
+  </section>
+
+  <section class="section" id="explore">
+    <div class="section-head"><span class="num">03</span><h2>Where the rules came from</h2></div>
+    <p class="howto">Before the tasks, the agent explored each API with a goal. Pick an episode to see each call and the tool's reply (left), and the rules a model wrote from that log (right).</p>
+    <div class="taskhead">
+      <button class="btn icon" id="eprev" aria-label="Previous episode">←</button>
+      <select class="select" id="epick" aria-label="Choose an exploration episode"></select>
+      <button class="btn icon" id="enext" aria-label="Next episode">→</button>
+    </div>
+    <p class="goal" id="goal"></p>
+    <div class="pair">
+      <div class="panel fixedh">
+        <h3><span class="term" data-tipkey="episode">What the agent did while exploring</span></h3>
+        <div class="grow"><table class="t steps" id="steps"></table></div>
+      </div>
+      <div class="panel fixedh">
+        <h3>Rules written from it</h3>
+        <div class="grow" id="eprules"></div>
+      </div>
+    </div>
+  </section>
+
+  <p class="foot">Source: GTTA's BFCLv3 tasks, exploration goals and prompts (r2llab/GTTA, commit 24ba304). Model outputs are shortened to about 700 characters each; tool replies during evaluation weren't saved, so only the agent's calls are shown for tasks.</p>
+</main>
+
+<script src="dg_data.js"></script>
+<script>
+(function () {
+  const D = window.DG_DATA, T = D.tasks, E = D.episodes, TIPS = window.TIPS;
+  const $ = (id) => document.getElementById(id);
+  const el = (tag, attrs, text) => { const e = document.createElement(tag); for (const k in (attrs || {})) e.setAttribute(k, attrs[k]); if (text != null) e.textContent = text; return e; };
+  const short = (id) => id.replace("multi_turn_base_", "#");
+  const sum = (a) => a.reduce((x, y) => x + (y ? 1 : 0), 0);
+
+  // ---- key numbers ----
+  const C = D.counts, R = D.runs;
+  const wins = T.filter(t => sum(t.dg.ok) === 3 && sum(t.none.ok) === 0).length;
+  const losses = T.filter(t => sum(t.none.ok) === 3 && sum(t.dg.ok) === 0).length;
+  [["DG · tasks solved", R.map(r => r.dg.toFixed(1)).join(" / ") + "%", "no adaptation: " + R.map(r => r.none.toFixed(1)).join(" / ") + "% · 3 runs", TIPS.stable],
+   ["Rules kept", C.kept + " of " + C.raw, "from " + C.episodes + " exploration episodes · " + C.steps + " steps", TIPS.kept],
+   ["Steady DG wins", String(wins), "tasks DG solves in all 3 runs, no adaptation in none", TIPS.dgwin],
+   ["Steady DG losses", String(losses), "tasks no adaptation solves in all 3 runs, DG in none", TIPS.dgloss]]
+    .forEach(([k, v, n, tip]) => { const d = el("div", { class: "stat" }); d.append(el("div", { class: "k term", "data-tip": tip }, k), el("div", { class: "v" }, v), el("div", { class: "n" }, n)); $("tiles").append(d); });
+
+  // ---- 01 rules ----
+  let api = null;
+  function renderApis() {
+    const tb = $("apis"); tb.innerHTML = "";
+    const head = el("thead"), hr = el("tr"); [["API", ""], ["", "barcell"], ["kept / written", "num"]].forEach(([h, c]) => hr.append(el("th", { class: c }, h))); head.append(hr); tb.append(head);
+    const body = el("tbody"); tb.append(body);
+    const all = el("tr", { class: api === null ? "sel" : "" }); all.append(el("td", {}, "All APIs"), el("td", { class: "barcell" }), el("td", { class: "num" }, C.kept + " / " + C.raw));
+    all.onclick = () => { api = null; renderApis(); renderRules(); }; body.append(all);
+    const maxRaw = Math.max(...Object.values(C.per_class).map(v => v.raw));
+    for (const [cls, v] of Object.entries(C.per_class)) {
+      const tr = el("tr", { class: api === cls ? "sel" : "" }), cell = el("td", { class: "barcell" });
+      const track = el("div", { class: "bar-track" }), all2 = el("div", { class: "bar base" }), kept = el("div", { class: "bar" });
+      all2.style.width = (100 * v.raw / maxRaw) + "%"; all2.style.position = "relative";
+      kept.style.width = (100 * v.kept / v.raw) + "%"; kept.style.position = "absolute"; kept.style.left = "0"; kept.style.top = "0";
+      all2.append(kept); track.append(all2); cell.append(track);
+      tr.append(el("td", {}, cls), cell, el("td", { class: "num" }, v.kept + " / " + v.raw));
+      tr.onclick = () => { api = cls; renderApis(); renderRules(); };
+      body.append(tr);
+    }
+  }
+  function ruleRows(tb, rules, withApi) {
+    tb.innerHTML = "";
+    const head = el("thead"), hr = el("tr");
+    [["When the agent called…", "action"], ["…it learned", "effect"], ["Learned from", "episode"]].forEach(([h, k]) => { const th = el("th", {}, h); if (k) { th.setAttribute("data-tip", TIPS[k]); } hr.append(th); });
+    head.append(hr); tb.append(head);
+    const body = el("tbody"); tb.append(body);
+    for (const r of rules) {
+      const tr = el("tr"), src = el("td", { class: "src" });
+      if (r.src && r.src.length) r.src.forEach((k, i) => { const b = el("button", { class: "srcbtn", type: "button", "data-tip": "Open the exploration episode this rule came from" }, "episode " + (k + 1)); b.onclick = () => openEpisode(k); if (i) src.append(document.createTextNode(", ")); src.append(b); });
+      else src.append(el("span", { class: "small muted", "data-tip": "The filter step rewrote or merged this rule, so it doesn't match one episode exactly." }, "merged"));
+      const act = el("td", { class: "act" }, r.a);
+      if (withApi) act.prepend(el("span", { class: "api" }, r.cls));
+      const eff = el("td", { class: "eff" }, r.d);
+      if (r.s) eff.append(el("span", { class: "bef", "data-tip": TIPS.before }, "Before: " + r.s));
+      tr.append(act, eff, src);
+      body.append(tr);
+    }
+  }
+  function renderRules() {
+    const q = $("rulesearch").value.trim().toLowerCase();
+    let rules = [];
+    for (const [cls, rs] of Object.entries(D.rules)) if (!api || api === cls) rs.forEach(r => rules.push({ ...r, cls }));
+    if (q) rules = rules.filter(r => (r.a + " " + r.d + " " + r.s + " " + r.cls).toLowerCase().includes(q));
+    $("rulecount").textContent = rules.length + " rule" + (rules.length === 1 ? "" : "s") + (api ? " · " + api : "");
+    ruleRows($("ruletable"), rules, !api);
+  }
+  $("rulesearch").addEventListener("input", renderRules);
+  renderApis(); renderRules();
+
+  // ---- 02 one task ----
+  const FILTERS = { all: () => true, win: t => sum(t.dg.ok) > sum(t.none.ok), loss: t => sum(t.dg.ok) < sum(t.none.ok), same: t => sum(t.dg.ok) === sum(t.none.ok) };
+  let filter = "all", cur = 0;
+  const visible = () => T.map((t, i) => i).filter(i => FILTERS[filter](T[i]));
+  function fillPick() {
+    const sel = $("pick"); sel.innerHTML = "";
+    for (const i of visible()) {
+      const t = T[i], o = el("option", { value: i }, "Task " + short(t.id) + " · " + t.classes.join(", ") + " · no adapt. " + sum(t.none.ok) + "/3 · DG " + sum(t.dg.ok) + "/3");
+      o.dataset.sub = t.turns[0]; sel.append(o);
+    }
+    window.enhanceSelect(sel, { search: true, wide: true, placeholder: "Search by number, tool or request…" });
+    if (!visible().includes(cur)) cur = visible()[0] ?? 0;
+    sel.value = cur; sel._dd.sync();
+  }
+  function segment(box, opts, get, set) {
+    box.innerHTML = "";
+    for (const [k, label, tip] of opts) {
+      const n = T.filter(FILTERS[k]).length;
+      const b = el("button", { type: "button", "aria-pressed": String(get() === k), "data-tip": tip }, label + " (" + n + ")");
+      b.onclick = () => { set(k); segment(box, opts, get, set); };
+      box.append(b);
+    }
+  }
+  segment($("filterseg"), [["all", "All", "All 200 tasks."], ["win", "DG wins", TIPS.dgwin], ["loss", "DG loses", TIPS.dgloss], ["same", "Same", "Tasks where both pass in the same number of runs."]],
+    () => filter, (k) => { filter = k; fillPick(); renderTask(); });
+  $("pick").onchange = () => { cur = +$("pick").value; renderTask(); };
+  const step = (dir) => { const v = visible(), at = v.indexOf(cur); cur = v[(at + dir + v.length) % v.length]; $("pick").value = cur; $("pick")._dd.sync(); renderTask(); };
+  $("prev").onclick = () => step(-1); $("next").onclick = () => step(1);
+
+  function callList(col, items, kind) {
+    if (!items || !items.length) { col.append(el("div", { class: "empty-col" }, kind === "gold" ? "no calls expected" : "no calls (the agent answered in text or stopped)")); return; }
+    items.forEach((x, i) => {
+      const isText = kind !== "gold" && !/^\[?\s*[A-Za-z_][\w.]*\s*\(/.test(x.trim());   // plain-text reply, not a tool call
+      const c = el("div", { class: "call" + (isText ? " said" : "") });
+      if (kind !== "gold") c.append(el("span", { class: "k" }, isText ? "said" : "step " + (i + 1)));
+      c.append(document.createTextNode(x)); col.append(c);
+    });
+  }
+  function renderTask() {
+    const t = T[cur];
+    $("meta").textContent = t.id + " · " + t.split + " split · " + t.classes.join(", ") + " · " + t.turns.length + " user turns";
+    const v = $("verdicts"); v.innerHTML = "";
+    const n0 = sum(t.none.ok), n1 = sum(t.dg.ok);
+    const msg = n1 > n0 ? (n1 === 3 && n0 === 0 ? "DG rules fixed this task: solved in all 3 runs, never without them." : "DG rules helped: solved in " + n1 + " of 3 runs with them vs. " + n0 + " without.")
+      : n1 < n0 ? (n0 === 3 && n1 === 0 ? "DG rules broke this task: solved in all 3 runs without them, never with them." : "DG rules hurt: solved in " + n1 + " of 3 runs with them vs. " + n0 + " without.")
+      : (n0 === 0 ? "Not solved in any run, with or without the rules." : "Same result with and without the rules (" + n0 + " of 3 runs).");
+    v.append(el("div", { class: "vsum " + (n1 > n0 ? "win" : n1 < n0 ? "loss" : "") }, msg));
+    const tb = el("table", { class: "vtable", "data-tip": TIPS.stable }), th = el("tr");
+    ["", "Run 1", "Run 2", "Run 3"].forEach(h => th.append(el("th", {}, h))); tb.append(th);
+    [["Without rules", t.none.ok], ["With DG rules", t.dg.ok]].forEach(([name, ok]) => {
+      const tr = el("tr"); tr.append(el("td", {}, name));
+      ok.forEach(x => tr.append(el("td", { class: x ? "pass" : "fail" }, x ? "✓ passed" : "✗ failed"))); tb.append(tr);
+    });
+    v.append(tb);
+    const box = $("turns"); box.innerHTML = "";
+    t.turns.forEach((u, k) => {
+      const turn = el("div", { class: "turn" }), h = el("div", { class: "turn-h" });
+      h.append(el("span", { class: "n" }, "Turn " + (k + 1)), document.createTextNode(u || "(no new user message)"));
+      const body = el("div", { class: "turn-b" });
+      const c1 = el("div", { class: "col" }), c2 = el("div", { class: "col" }), c3 = el("div", { class: "col" });
+      c1.append(el("div", { class: "col-h", "data-tip": "The calls BFCL expects for this turn (its reference answer)." }, "Expected calls"));
+      c2.append(el("div", { class: "col-h", "data-tip": "What the agent did in run 1 with the normal prompt." }, "Agent without rules"));
+      c3.append(el("div", { class: "col-h", "data-tip": "What the agent did in run 1 with the DG rules added to its prompt." }, "Agent with DG rules"));
+      callList(c1, t.gold[k], "gold"); callList(c2, (t.none.steps[k] || []), "run"); callList(c3, (t.dg.steps[k] || []), "run");
+      body.append(c1, c2, c3); turn.append(h, body); box.append(turn);
+    });
+    const rules = []; for (const cls of t.classes) (D.rules[cls] || []).forEach(r => rules.push({ ...r, cls }));
+    $("taskrules-sum").textContent = "Rules that were in this task's prompt (" + rules.length + ", for " + t.classes.join(" and ") + ")";
+    ruleRows($("taskrules"), rules, true);
+  }
+  fillPick(); renderTask();
+
+  // ---- 03 exploration episodes ----
+  let ecur = 0;
+  E.forEach((e, i) => { const o = el("option", { value: i }, "Episode " + (i + 1) + " · " + e.classes.join(", ") + " · " + e.steps.length + " steps · " + e.rules.length + " rules"); o.dataset.sub = e.goal; $("epick").append(o); });
+  window.enhanceSelect($("epick"), { search: true, wide: true, placeholder: "Search goals, tools…" });
+  $("epick").onchange = () => { ecur = +$("epick").value; renderEpisode(); };
+  const estep = (dir) => { ecur = (ecur + dir + E.length) % E.length; $("epick").value = ecur; $("epick")._dd.sync(); renderEpisode(); };
+  $("eprev").onclick = () => estep(-1); $("enext").onclick = () => estep(1);
+  function renderEpisode() {
+    const e = E[ecur];
+    $("goal").innerHTML = ""; $("goal").append(el("span", { class: "lbl" }, "Goal"), document.createTextNode(e.goal));
+    const tb = $("steps"); tb.innerHTML = "";
+    const head = el("thead"), hr = el("tr"); ["#", "Call and tool reply"].forEach(h => hr.append(el("th", {}, h))); head.append(hr); tb.append(head);
+    const body = el("tbody"); tb.append(body);
+    if (!e.steps.length) { const tr = el("tr"); tr.append(el("td", { colspan: 2, class: "muted" }, "No steps were recorded.")); body.append(tr); }
+    e.steps.forEach((s, i) => {
+      const tr = el("tr"), td = el("td");
+      td.append(el("div", { class: "callc" }, s.a));
+      td.append(el("div", { class: "tool" }, s.err ? "(the call couldn't be parsed, so nothing ran)" : "→ " + s.t));
+      tr.append(el("td", { class: "i" }, String(i + 1)), td); body.append(tr);
+    });
+    const box = $("eprules"); box.innerHTML = "";
+    if (e.unparsed) box.append(el("p", { class: "small muted" }, "The rule-writing model's answer for this episode couldn't be read as JSON, so no rules came from it."));
+    else if (!e.rules.length) box.append(el("p", { class: "small muted" }, "No rules were written from this episode."));
+    e.rules.forEach(r => {
+      const c = el("div", { class: "rulecard" });
+      const a = el("div", { class: "a" }); a.append(el("span", { class: "lbl", "data-tip": TIPS.action }, "Called"), document.createTextNode(r.a));
+      const d = el("div", { class: "d" }); d.append(el("span", { class: "lbl", "data-tip": TIPS.effect }, "Learned"), document.createTextNode(r.d));
+      const s = el("div", { class: "s" }); s.append(el("span", { class: "lbl", "data-tip": TIPS.before }, "Before"), document.createTextNode(r.s));
+      c.append(a, d, s); box.append(c);
+    });
+  }
+  function openEpisode(k) {
+    ecur = k; $("epick").value = k; $("epick")._dd.sync(); renderEpisode();
+    const sec = $("explore"); sec.scrollIntoView({ behavior: "smooth", block: "start" });
+    sec.classList.remove("flash"); void sec.offsetWidth; sec.classList.add("flash");
+  }
+  renderEpisode();
+})();
+</script>
+</body>
+</html>
