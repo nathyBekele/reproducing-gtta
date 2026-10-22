@@ -30,6 +30,8 @@
 .minikv > b { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
 .grid2.wide1 { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); }
 @media (max-width: 760px) { .grid2.wide1 { grid-template-columns: 1fr; } }
+.grid2.wide1 > .panel:first-child { display: flex; flex-direction: column; }
+.grid2.wide1 > .panel:first-child #stats { margin-top: auto; padding-top: 10px; }
 .freqcols { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(220px, 1fr); gap: 18px; align-items: start; }
 @media (max-width: 900px) { .freqcols { grid-template-columns: 1fr; } }
 </style>
@@ -280,7 +282,7 @@
     const head = el("thead"), hr = el("tr"); [["token", ""], ["b", "barcell"], ["", "num"]].forEach(([h, c]) => hr.append(el("th", { class: c }, h))); head.append(hr); bars.append(head);
     const body = el("tbody"); bars.append(body);
     const maxb = Math.max(...v.top.map(x => x[1]));
-    for (const [tok, b, inP, inA] of v.top.slice(0, 12)) {
+    for (const [tok, b, inP, inA] of v.top.slice(0, 8)) {
       const tr = el("tr"), c1 = el("td", { class: "mono" }, showTok(tok)), c2 = el("td", { class: "barcell" }), c3 = el("td", { class: "num small" }, b.toFixed(b < 0.1 ? 4 : 3));
       const bar = el("div", { class: "bar" + (inA ? "" : " base") }); bar.style.width = (100 * b / maxb) + "%";
       c2.append(bar);

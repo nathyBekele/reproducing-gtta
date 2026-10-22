@@ -8,7 +8,7 @@
   --panel: #fafaf8;
   --ink: #1c1c1a;
   --ink-2: #4a4945;
-  --muted: #7c7b75;
+  --muted: #6e6d67;
   --rule: #e4e3de;
   --rule-strong: #cfcec8;
   --zebra: #f6f6f3;
@@ -24,7 +24,7 @@
   --s-paper: var(--accent); --s-mask: var(--accent-2); --s-exact: var(--base);
   --div-pos: var(--accent); --div-neg: var(--neg); --div-mid: #efeeea;
   --surface: var(--bg); --chip: var(--hover); --grid: #ecebe6; --axis: var(--rule-strong);
-  --on-accent: #ffffff; --topbar: rgba(255,255,255,.94); --chev: %237c7b75; --shadow: rgba(0,0,0,.08);
+  --on-accent: #ffffff; --topbar: rgba(255,255,255,.94); --chev: %236e6d67; --shadow: rgba(0,0,0,.08);
 }
 /* dark theme: follows the device unless the switch picked a theme (data-theme on <html>) */
 @media (prefers-color-scheme: dark) {
@@ -294,4 +294,19 @@ html.pdfv-open { overflow: hidden; }
 @media (max-width: 640px) {
   .brand { border-right: 0; padding-right: 0; margin-right: 0; }
   .nav { gap: 14px; }
+}
+
+/* ---------- sizing pass v3: readable small text, clearer section titles, calmer width ---------- */
+:root { --page-max: 1240px; }
+body.app { --page-max: 1560px; }            /* the SA Inspector keeps its wide two-column layout */
+h2 { font-size: 17px; letter-spacing: -0.005em; }
+.section-head .num { font-size: 13px; }
+.pill { font-size: 11px; }
+.stat .k { font-size: 12px; }
+.badge { font-size: 11.5px; }
+.dd-count { font-size: 12px; }
+svg text { font-size: 12px; }
+@media (max-width: 640px) {
+  .btn, .select, .dd-trigger { min-height: 40px; }
+  .seg button { height: 38px; }
 }
