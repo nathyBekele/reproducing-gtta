@@ -25,8 +25,6 @@ function onReady(fn) { if (document.readyState === "loading") document.addEventL
 (function () {
   var REPO_URL = "https://github.com/nathyBekele/reproducing-gtta";
   var links = [
-    ["SA Inspector (live)", "try"],
-    ["DG Inspector (saved runs)", "dg"],
     ["Report (PDF)", "report.pdf"],
     ["Hugging Face Space", "https://huggingface.co/spaces/NathyB/gtta-sa-explorer"],
     ["Code", REPO_URL],

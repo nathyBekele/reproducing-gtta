@@ -26,6 +26,8 @@
 .blocktitle { font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-bottom: 8px; }
 .settings { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; }
 .settings .wide { grid-column: 1 / -1; }
+.settings details.more > summary { margin: 0 0 8px; }
+.settings details.more:not([open]) > summary { margin: 0; }
 .request { font-size: 13px; margin: 8px 0 6px; color: var(--ink); }
 .gold { font: 11.5px/1.45 "IBM Plex Mono", Menlo, monospace; background: var(--panel); border: 1px solid var(--rule); padding: 6px 8px; border-radius: var(--radius); white-space: pre-wrap; word-break: break-word; }
 .gpustate { font-size: 12px; font-weight: 500; margin-left: 6px; text-transform: none; letter-spacing: 0; }
@@ -56,7 +58,7 @@
 <main>
   <div class="intro">
     <h1>SA Inspector <span class="pill live" style="vertical-align:4px">live</span></h1>
-    <p><span class="term" data-tipkey="sa">Syntactic Alignment (SA)</span> adds a small learned vector δ to a model's last layer, trained for a step or two on the prompt, before the model answers. This page runs it live<span id="hwword"> on a GPU</span>: pick a task or paste your own text, press <b>Run SA</b>, and see two things for yourself: with the released code, SA's step gets smaller the longer the prompt is, and the words it boosts are mostly the prompt's most common ones, like punctuation and repeated phrases.</p>
+    <p><span class="term" data-tipkey="sa">Syntactic Alignment (SA)</span> adds a small learned vector δ to the model's last layer, trained on the prompt before it answers. Run it yourself<span id="hwword"> on a GPU</span> and see whether its step shrinks with prompt length.</p>
   </div>
 
   <div class="layout">
@@ -83,9 +85,11 @@
         <div class="settings">
           <label class="field wide"><span class="label"><span class="term" data-tipkey="model">Model</span> <span id="gpustate" class="gpustate"></span></span><select class="select" id="model" aria-label="Model"></select></label>
           <div class="field wide"><span class="label"><span class="term" data-tipkey="gradient">Gradient</span></span><span class="seg" id="varseg" role="group" aria-label="Gradient variant"></span></div>
+          <details class="more wide"><summary>More settings</summary><div class="settings">
           <label class="field"><span class="label"><span class="term" data-tipkey="lr">Learning rate</span></span><select class="select" id="lr" aria-label="Learning rate"><option value="0.01">0.01</option><option value="0.1" selected>0.1 · paper default</option><option value="1">1.0 · paper's best (14B)</option></select></label>
           <label class="field"><span class="label"><span class="term" data-tipkey="steps">Adam steps</span></span><select class="select" id="steps" aria-label="Adam steps"><option value="1" selected>1 · paper default</option><option value="2">2</option><option value="3">3 · paper's best (14B)</option></select></label>
           <label class="check wide"><input type="checkbox" id="gen"> Also generate a reply with and without SA</label>
+          </div></details>
         </div>
       </div>
 
@@ -99,13 +103,8 @@
     <!-- results -->
     <section class="right" aria-label="Results">
       <div class="panel empty" id="empty">
-        <b>Press Run SA to see</b>
-        <ol>
-          <li><b>How big SA's step is</b> when it reads only the first part of the prompt, at several lengths. With the exact gradient the step stays about the same; with the released code it gets smaller as the prompt grows.</li>
-          <li><b>Which words SA boosts most</b>, and whether they appear in the correct answer.</li>
-          <li><b>How each word of the correct answer</b> becomes more or less likely.</li>
-        </ol>
-        <p class="small muted" style="margin:8px 0 0">Try switching between <b>Released</b> and <b>Exact</b>, or running the same text short and long. Hover any underlined term for a plain explanation.</p>
+        <b>Press Run SA</b> to see how big SA's step is at several prompt lengths, which words it boosts, and how the correct answer's likelihood changes.
+        <p class="small muted" style="margin:8px 0 0">Tip: switch between <b>Released</b> and <b>Exact</b>. Hover any underlined term for a plain explanation.</p>
       </div>
 
       <div id="results" class="hidden">

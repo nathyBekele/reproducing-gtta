@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Reproducing GTTA on BFCLv3: Notes</title>
+<title>Reproducing GTTA on BFCLv3</title>
 <style>
 @page { size: Letter; margin: 0.6in 0.65in 0.6in; }
 :root { --ink: #1d1d1b; --ink2: #3f3e3a; --muted: #6b6a66; --rule: #cfcec8; --accent: #1f4e8c; }
 * { box-sizing: border-box; }
 html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-body { margin: 0; color: var(--ink); font: 9pt/1.45 "Helvetica Neue", Helvetica, Arial, sans-serif; }
+body { margin: 0; color: var(--ink); font: 9.6pt/1.55 "Helvetica Neue", Helvetica, Arial, sans-serif; }
 a { color: inherit; text-decoration: none; border-bottom: 0.5pt solid var(--rule); }
 
 /* header */
@@ -21,24 +21,24 @@ h1 { font-size: 17pt; line-height: 1.2; margin: 0 0 5pt; font-weight: 600; lette
 .links svg { width: 8.5pt; height: 8.5pt; fill: currentColor; }
 
 /* summary */
-.summary { border-top: 0.75pt solid var(--ink); border-bottom: 0.5pt solid var(--rule); padding: 6pt 0 7pt; margin-bottom: 10pt; }
+.summary { border-top: 0.75pt solid var(--ink); border-bottom: 0.5pt solid var(--rule); padding: 8pt 0 9pt; margin-bottom: 12pt; }
 .summary h3 { font-size: 7.5pt; letter-spacing: .1em; text-transform: uppercase; margin: 0 0 3pt; color: var(--muted); font-weight: 600; }
 .summary ol { margin: 0; padding-left: 13pt; columns: 1; }
 .summary li { margin-bottom: 1.5pt; }
 
 /* body */
 .cols { column-count: 2; column-gap: 0.3in; text-align: justify; hyphens: auto; -webkit-hyphens: auto; }
-h2 { font-size: 9.5pt; margin: 9pt 0 3pt; font-weight: 700; break-after: avoid; text-align: left; }
+h2 { font-size: 10pt; margin: 13pt 0 4pt; font-weight: 700; break-after: avoid; text-align: left; }
 h2 .n { display: inline-block; min-width: 13pt; }
-p { margin: 0 0 5pt; }
+p { margin: 0 0 7pt; }
 ul, ol { margin: 0 0 5pt; padding-left: 12pt; }
-li { margin-bottom: 2pt; }
+li { margin-bottom: 3.5pt; }
 b, strong { font-weight: 600; }
 code { font: 7.8pt Menlo, monospace; }
 .math { font-family: "Times New Roman", Times, serif; font-style: italic; font-size: 9.8pt; }
 
 /* figures */
-figure { margin: 5pt 0 9pt; break-inside: avoid; }
+figure { margin: 7pt 0 12pt; break-inside: avoid; }
 figure img { width: 100%; display: block; }
 figcaption { font-size: 7.6pt; line-height: 1.35; color: var(--ink2); margin-top: 3pt; text-align: justify; }
 figcaption b { color: var(--ink); }
@@ -60,7 +60,6 @@ figcaption b { color: var(--ink); }
 <body>
 <div class="page">
 <header>
-  <div class="kicker">Reproduction notes · October 2026</div>
   <h1>Reproducing GTTA on BFCLv3: What I Saw</h1>
   <div class="author">Natnael Bekele</div>
   <div class="links">
@@ -82,64 +81,47 @@ figcaption b { color: var(--ink); }
 </div>
 
 <div class="cols">
-  <h2><span class="n">1</span>Goal</h2>
-  <p>I wanted to understand <i>Test-Time Adaptation for LLM Agents via Environment Interaction</i> (GTTA; Chen et al., ICLR 2026) by rerunning it. It proposes two ways for an agent to adapt to a new environment. <b>Syntactic Alignment (SA)</b> learns a small vector <span class="math">δ</span> added to the model's last hidden layer, updated with a few Adam steps on the current prompt. <b>Dynamics Grounding (DG)</b> lets the agent explore, turns what it saw into written rules, and adds them to the prompt.</p>
-  <p>One observation guided the rest: the logits are <span class="math">(H+δ)Wᵀ = HWᵀ + δWᵀ</span>, so SA amounts to a fixed score added to every word in the vocabulary. That means I can read off exactly which words it pushes up.</p>
+  <h2><span class="n">1</span>What I did</h2>
+  <p><i>Test-Time Adaptation for LLM Agents via Environment Interaction</i> (GTTA; Chen et al., ICLR 2026) proposes two ways for an agent to adapt to a new environment. <b>Syntactic Alignment (SA)</b> learns a small vector <span class="math">δ</span> added to the model's last hidden layer, with a few Adam steps on the current prompt. <b>Dynamics Grounding (DG)</b> lets the agent explore, writes what it saw down as rules, and adds them to the prompt.</p>
+  <p>I reran both with Qwen2.5-14B-Instruct on the authors' 200 BFCLv3 multi-turn tasks (commit <code>24ba304</code>), scored with BFCL's own checker. I reimplemented SA from the released <code>vllm/model_runner.py</code> with the same schedule; for DG, Qwen-14B explored and wrote its own rules (the paper used GPT-4.1/GPT-4o/o3). All experiments cost about $13 on rented GPUs.</p>
+  <p>One observation guided the rest: the logits are <span class="math">(H+δ)Wᵀ = HWᵀ + δWᵀ</span>, so SA adds a fixed score to every word in the vocabulary, and I can read off exactly which words it pushes up.</p>
 
-  <h2><span class="n">2</span>Setup</h2>
-  <ul>
-    <li><b>Model and data:</b> Qwen2.5-14B-Instruct (bf16) on BFCLv3 multi-turn, the 200 tasks in the authors' repository (commit <code>24ba304</code>), scored with BFCL's own checker.</li>
-    <li><b>SA:</b> reimplemented from the released <code>vllm/model_runner.py</code> (a line-by-line port of the released gradient matches mine), with the same schedule: reset at each user turn, Adam steps on the whole prompt at every model call.</li>
-    <li><b>DG:</b> the released prompts and exploration goals, but Qwen-14B itself explores, writes and filters the rules (the paper used GPT-4.1/GPT-4o/o3).</li>
-    <li><b>Compute:</b> rented cloud GPUs (Modal), about $13 for all experiments.</li>
-  </ul>
-
-  <h2><span class="n">3</span>Findings</h2>
-  <p><b>DG works as reported.</b> Without adaptation the agent solves 17.5–18.5% of tasks; with DG rules, 21.0–22.0% (Figure 1). Two of my runs hit the paper's numbers exactly. Identical reruns move scores by about 1 point, so the gain is bigger than the noise.</p>
+  <h2><span class="n">2</span>Findings</h2>
+  <p><b>DG works as reported.</b> Without adaptation the agent solves 17.5–18.5% of tasks; with DG rules, 21.0–22.0% (Figure 1). Two of my runs hit the paper's numbers exactly, and the gain is bigger than the 1-point noise between identical runs.</p>
   <figure><img src="figures/n_dg.svg" alt="DG results"><figcaption><b>Figure 1.</b> Tasks solved with and without DG rules, on all 200 tasks. My three runs use identical prompts.</figcaption></figure>
 
-  <p><b>SA didn't change how many tasks were solved.</b> At the paper's default setting, SA changed at least one generated word in 53 of 200 tasks but never changed an outcome. At the paper's best setting for this model, it changed almost every run, with 5 extra wins and 4 extra losses (+0.5 points, 95% CI −2.5 to +3.5; Figure 2).</p>
-  <figure><img src="figures/n_sa.svg" alt="SA task success"><figcaption><b>Figure 2.</b> Tasks solved with SA inside the agent loop (released gradient), compared with no SA in the same loop. "Changed" counts tasks where SA altered at least one generated word.</figcaption></figure>
+  <p><b>SA didn't change how many tasks were solved.</b> At the paper's default setting it changed generated words in 53 of 200 tasks but never an outcome (+0.0 points). At the paper's best setting it gained +0.5 points (5 wins, 4 losses; 95% CI −2.5 to +3.5), within the noise.</p>
 
-  <p><b>A possible reason: the step shrinks as the prompt grows.</b> The released code averages the gradient over the prompt twice (divide by the number of tokens, then <code>.mean(0)</code> over positions), which equals the exact gradient divided by the prompt length. On BFCL's 4K–8K-token prompts every coordinate ends up below Adam's ε = 10⁻⁶, so the step is about 64× smaller than Adam would normally take, and it keeps shrinking with length (Figure 3). The 1.5B model shows the same thing.</p>
-  <figure><img src="figures/n_step.svg" alt="Step size vs prompt length"><figcaption><b>Figure 3.</b> Size of SA's first step (‖δ‖, lr 0.1) on each of the 200 prompts, with the released code and with the exact gradient.</figcaption></figure>
+  <p><b>A possible reason: the step shrinks as the prompt grows.</b> The released code averages the gradient over the prompt twice (divide by the number of tokens, then <code>.mean(0)</code>), which equals the exact gradient divided by the prompt length. On BFCL's 4K–8K-token prompts every coordinate falls below Adam's ε = 10⁻⁶, so the step is about 64× smaller than Adam would normally take, and it keeps shrinking with length (Figure 2).</p>
+  <figure><img src="figures/n_step.svg" alt="Step size vs prompt length"><figcaption><b>Figure 2.</b> Size of SA's first step (‖δ‖, lr 0.1) on each of the 200 prompts, with the released code and with the exact gradient.</figcaption></figure>
 
-  <p><b>What SA pushes up.</b> Its top words are the prompt's most frequent text: punctuation, newlines, and “Note”, because BFCL appends “Note that the provided function is in Python 3 syntax” to every function (Figure 4). Only about 8% of the top words appear in the correct answer, and SA doesn't make the correct first call more likely at either setting (e.g. −0.0027 nats per token, 95% CI −0.0077 to +0.0019, at the best setting).</p>
-  <figure><img src="figures/n_words.svg" alt="Words SA pushes up"><figcaption><b>Figure 4.</b> Words most often among SA's 15 most-boosted, across the 200 tasks, for a full-size step. The released code's tiny step leans the same way, punctuation first.</figcaption></figure>
+  <p><b>What SA pushes up</b> is the prompt's most frequent text: punctuation, newlines, and “Note”, because BFCL appends “Note that the provided function is in Python 3 syntax” to every function (Figure 3). Only about 8% of these words appear in the correct answer, and SA doesn't make the correct first call more likely at either setting.</p>
+  <figure><img src="figures/n_words.svg" alt="Words SA pushes up"><figcaption><b>Figure 3.</b> Words most often among SA's 15 most-boosted, across the 200 tasks, for a full-size step. The released code's tiny step leans the same way.</figcaption></figure>
 
-  <p><b>SA together with DG.</b> DG's rules make prompts 36% longer, which shrinks SA's step further (median ‖δ‖ 0.108 → 0.070). This may be one reason the paper's simple SA+DG combination (21.0%) didn't beat DG alone (22.0%).</p>
+  <p><b>SA together with DG.</b> DG's rules make prompts 36% longer, which shrinks SA's step further (median ‖δ‖ 0.108 → 0.070). This may be one reason the paper's SA+DG combination (21.0%) didn't beat DG alone (22.0%).</p>
 
-  <h2><span class="n">4</span>Process</h2>
-  <ol>
-    <li>I first measured how likely the model finds the correct first call, with and without SA. This is cheap: one forward pass covers every setting.</li>
-    <li>The step looked tiny, which led me to the double averaging. To be fair, I reran at the paper's best setting (lr 1.0, 3 steps); the step grew, but the correct call still didn't get more likely.</li>
-    <li>The first DG attempt failed silently: Qwen often writes several calls per step, BFCL rejected them, and 55 of 80 exploration logs came out empty. Running the first valid call (during exploration only) fixed it, giving 133 rules.</li>
-    <li>Scores moved by about 1 point between identical runs, so I repeated the DG runs before trusting a difference.</li>
-    <li>Last, I ran SA inside the agent loop. A task where SA never changes a generated word must end the same way, so I only reran the tasks it did change.</li>
-    <li>I corrected one inconsistency of my own: some medians had been computed on the 160 test tasks only. Every number here uses all 200 tasks.</li>
-  </ol>
-
-  <h2><span class="n">5</span>Limitations</h2>
+  <h2><span class="n">3</span>How I got there</h2>
   <ul>
-    <li>I ran SA in my own PyTorch loop (one δ per task), not the original vLLM-based implementation. My loop scores 1–2 points higher overall, so I only compare SA with no SA inside the same loop.</li>
-    <li>I tried one benchmark. BFCL prompts are mostly long function documentation, and WebArena may behave differently.</li>
-    <li>For DG I used Qwen instead of GPT-4.1/GPT-4o/o3, plus the parsing change above.</li>
+    <li><b>DG failed silently at first.</b> Qwen often writes several calls per step, BFCL rejected them, and 55 of 80 exploration logs came out empty. Running the first valid call (during exploration only) fixed it.</li>
+    <li><b>Noise first.</b> Identical runs moved by about 1 point, so I repeated DG three times before trusting the gain.</li>
+    <li><b>A shortcut for SA.</b> A task where SA changes no generated word must end the same way, so I only reran the tasks it changed.</li>
   </ul>
 
-  <h2><span class="n">6</span>Open questions</h2>
+  <h2><span class="n">4</span>Limitations</h2>
+  <ul>
+    <li>SA ran in my own PyTorch loop, not the original vLLM server, so I compare it only with no SA in the same loop.</li>
+    <li>One benchmark; WebArena's prompts may behave differently.</li>
+    <li>DG used Qwen instead of GPT-4.1/GPT-4o/o3 to write rules.</li>
+  </ul>
+
+  <h2><span class="n">5</span>Open questions</h2>
   <ul>
     <li>Which user-turn masking setting (<code>MASK_TOKENS</code>) was used for the reported runs?</li>
     <li>Was the larger learning rate (1.0) meant to make up for the small step?</li>
   </ul>
 
-  <h2><span class="n">7</span>Reproducing these results</h2>
-  <p>On the project site, the <a href="https://nathyb-gtta-sa-explorer.hf.space/try">SA Inspector</a> runs SA live on Qwen2.5-1.5B or 14B with either gradient, on a BFCL task or your own text, and the <a href="https://nathyb-gtta-sa-explorer.hf.space/dg">DG Inspector</a> shows every DG rule and trajectory from the saved runs. Code, per-task results and a dated log of every decision are in the repository: <a href="https://github.com/nathyBekele/reproducing-gtta">github.com/nathyBekele/reproducing-gtta</a>.</p>
-  <table class="check">
-    <tr><td>DG runs</td><td><code>results/dg/dg-14b*/</code></td></tr>
-    <tr><td>SA task success</td><td><code>results/sa_agent/sa-agent-14b/</code></td></tr>
-    <tr><td>Step size, top words</td><td><code>results/summary/qwen2.5-14b-bf16*/</code></td></tr>
-    <tr><td>Every decision</td><td><code>notes/decisions.md</code></td></tr>
-  </table>
+  <h2><span class="n">6</span>Check it yourself</h2>
+  <p>The <a href="https://nathyb-gtta-sa-explorer.hf.space/try">SA Inspector</a> runs SA live on a BFCL task or your own text, and the <a href="https://nathyb-gtta-sa-explorer.hf.space/dg">DG Inspector</a> shows every DG rule and trajectory. Code, per-task results and a log of every decision: <a href="https://github.com/nathyBekele/reproducing-gtta">github.com/nathyBekele/reproducing-gtta</a>.</p>
 </div>
 </div>
 </body>

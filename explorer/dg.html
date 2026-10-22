@@ -82,14 +82,14 @@
 <main>
   <div class="hero">
     <h1>DG Inspector <span class="pill" style="vertical-align:4px">saved runs</span></h1>
-    <p><span class="term" data-tipkey="dg">Dynamics Grounding (DG)</span> lets the agent explore the tools first, writes down short rules about how they behave, and adds those rules to the prompt. This page is pre-computed: it shows the rules from my runs, where each one came from, and how the agent's calls changed on each task. Nothing runs live here; DG takes minutes of GPU time per run. <span class="term" data-tipkey="selfexplore">Who wrote the rules?</span></p>
+    <p><span class="term" data-tipkey="dg">Dynamics Grounding (DG)</span> lets the agent explore the tools first, writes short rules about how they behave, and adds them to the prompt. Everything here comes from my saved runs, where <span class="term" data-tipkey="selfexplore">Qwen-14B wrote its own rules</span>.</p>
   </div>
 
   <div class="stats" id="tiles" style="margin-bottom:6px"></div>
 
   <section class="section" id="rules">
     <div class="section-head"><span class="num">01</span><h2>The rules DG learned</h2></div>
-    <p class="howto">Each rule records one tool call the agent tried while exploring and what happened. These rules are added to the agent's prompt. Pick an API on the left to see only its rules.</p>
+    <p class="howto">Each rule is one tool call the agent tried while exploring, and what happened. Pick an API to filter.</p>
     <div class="split">
       <div class="panel fixedh">
         <h3><span class="term" data-tipkey="kept">Rules per API</span> <span class="muted small" style="font-weight:400">kept of written</span></h3>
@@ -107,7 +107,7 @@
 
   <section class="section" id="task">
     <div class="section-head"><span class="num">02</span><h2>One task, with and without the rules</h2></div>
-    <p class="howto">Pick a task. Each turn shows the user's request, the calls BFCL expects, and what the agent actually did without and with the DG rules (run 1). "Said" means the agent answered in text instead of calling a tool.</p>
+    <p class="howto">Each turn shows the request, the calls BFCL expects, and what the agent did without and with the rules (run 1). "Said" = answered in text instead of calling a tool.</p>
     <div class="taskhead">
       <span class="seg" id="filterseg" role="group" aria-label="Filter tasks"></span>
       <button class="btn icon" id="prev" aria-label="Previous task">←</button>
@@ -122,7 +122,7 @@
 
   <section class="section" id="explore">
     <div class="section-head"><span class="num">03</span><h2>Where the rules came from</h2></div>
-    <p class="howto">Before the tasks, the agent explored each API with a goal. Pick an episode to see each call and the tool's reply (left), and the rules a model wrote from that log (right).</p>
+    <details class="exdet" id="exdet"><summary>Show the exploration episodes: each call, the tool's reply, and the rules written from it</summary>
     <div class="taskhead">
       <button class="btn icon" id="eprev" aria-label="Previous episode">←</button>
       <select class="select" id="epick" aria-label="Choose an exploration episode"></select>
@@ -139,6 +139,7 @@
         <div class="grow" id="eprules"></div>
       </div>
     </div>
+    </details>
   </section>
 
   <p class="foot">Source: GTTA's BFCLv3 tasks, exploration goals and prompts (r2llab/GTTA, commit 24ba304). Model outputs are shortened to about 700 characters each; tool replies during evaluation weren't saved, so only the agent's calls are shown for tasks.</p>
@@ -316,7 +317,7 @@
     });
   }
   function openEpisode(k) {
-    ecur = k; $("epick").value = k; $("epick")._dd.sync(); renderEpisode();
+    $("exdet").open = true; ecur = k; $("epick").value = k; $("epick")._dd.sync(); renderEpisode();
     const sec = $("explore"); sec.scrollIntoView({ behavior: "smooth", block: "start" });
     sec.classList.remove("flash"); void sec.offsetWidth; sec.classList.add("flash");
   }

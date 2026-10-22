@@ -28,6 +28,8 @@
 .minikv > * { padding: 4px 0; border-bottom: 1px solid var(--rule); }
 .minikv > span:nth-child(odd) { color: var(--ink-2); }
 .minikv > b { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+.grid2.wide1 { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); }
+@media (max-width: 760px) { .grid2.wide1 { grid-template-columns: 1fr; } }
 .freqcols { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(220px, 1fr); gap: 18px; align-items: start; }
 @media (max-width: 900px) { .freqcols { grid-template-columns: 1fr; } }
 </style>
@@ -44,8 +46,7 @@
   <div class="hero">
     <div>
       <h1>Reproducing GTTA on BFCLv3</h1>
-      <p class="paper">An independent reproduction of <i>Test-Time Adaptation for LLM Agents via Environment Interaction</i> (GTTA; Chen et al., ICLR 2026).</p>
-      <p>Benchmark: <span id="bench"></span>. Model: <span id="model"></span>. <span class="term" data-tipkey="sa">Syntactic Alignment (SA)</span> adds a learned vector δ to the model's final hidden states, which is the same as adding a fixed score <span class="mono">b = δ·Wᵀ</span> to every vocabulary token. So I can read exactly which tokens it pushes up, and check whether that helps.</p>
+      <p class="paper">An independent reproduction of <i>Test-Time Adaptation for LLM Agents via Environment Interaction</i> (GTTA; Chen et al., ICLR 2026), with <span id="model"></span> on <span id="bench"></span>.</p>
     </div>
     <div class="actions"><a class="btn primary" href="try" style="text-decoration:none">Open the SA Inspector (live) →</a><a class="btn" href="dg" style="text-decoration:none;color:var(--ink)">DG Inspector</a></div>
   </div>
@@ -63,10 +64,9 @@
         <div class="chartwrap" id="wrap1"><svg id="scatter" role="img" aria-label="Scatter of delta norm versus prompt length"></svg><div class="tip" id="tip"></div></div>
       </div>
       <div class="side">
-        <p>Size of δ after one SA step (lr 0.1), one dot per task. The released code averages the gradient over the prompt twice, so every coordinate falls below Adam's ε and the step scales like 1/length. The exact gradient gives a full-size step at every length.</p>
-        <p>With DG rules, prompts are 36% longer and the released step shrinks further.</p>
+        <p>Size of <span class="term" data-tipkey="delta">δ</span> after one SA step, one dot per task. The released code averages the gradient twice, so its step is tiny and shrinks like 1/length; the exact gradient doesn't.</p>
         <div class="kv" id="sidekv"></div>
-        <p class="small muted" style="margin-top:8px">Click a dot, or a row in the table below, to open that task.</p>
+        <p class="small muted" style="margin-top:8px">Click a dot to open that task below.</p>
       </div>
     </div>
     <details><summary>Table view of all 200 tasks</summary><div class="scrollbox"><table class="t" id="alltable"></table></div></details>
@@ -82,7 +82,7 @@
     </div>
     <div class="meta" id="meta"></div>
     <p class="req" id="req"></p>
-    <div class="grid3">
+    <div class="grid2 wide1">
       <div class="panel">
         <h3><span class="term" data-tipkey="gold">Correct first call</span>: change in each token's log-probability</h3>
         <div class="toks" id="toks"></div>
@@ -93,10 +93,6 @@
         <h3>Tokens δ pushes up most <span class="muted small term" style="font-weight:400" data-tipkey="b">(b = δ·Wᵀ)</span></h3>
         <table class="t bars" id="bars"></table>
         <p class="small muted" style="margin:6px 0 0">␣ space · ⏎ newline · dark bar = also in the correct call</p>
-      </div>
-      <div class="panel">
-        <h3>Did the agent solve this task?</h3>
-        <table class="t" id="outc"></table>
       </div>
     </div>
   </section>
@@ -109,9 +105,8 @@
         <table class="t bars" id="freq"></table>
       </div>
       <div class="side">
-        <p>How many tasks have each token among δ's 15 most-boosted. Frequent prompt text dominates.</p>
-        <p>BFCL appends “Note that the provided function is in Python 3 syntax.” to every function description, so <span class="mono">Note</span> is the most repeated phrase in every prompt.</p>
-        <p class="small muted">Dark bar segment: tasks where the token also appears in the correct call.</p>
+        <p>How many tasks have each token among δ's 15 most-boosted. Frequent prompt text wins: BFCL appends “Note that the provided function is in Python 3 syntax.” to every function, so <span class="mono">Note</span> ranks high.</p>
+        <p class="small muted">Dark segment: the token is also in the correct call.</p>
       </div>
     </div>
   </section>
@@ -130,7 +125,7 @@
   const el = (tag, attrs, text) => { const e = document.createElement(tag); for (const k in (attrs || {})) e.setAttribute(k, attrs[k]); if (text != null) e.textContent = text; return e; };
   const fmt = (x, d = 3) => (x >= 0 ? "+" : "") + x.toFixed(d);
   $("bench").textContent = D.benchmark; $("model").textContent = D.model;
-  $("foot").textContent = "Tasks, split and prompts: the original GTTA repository (r2llab/GTTA, commit 24ba304). All results on this page were computed in this reproduction; its code will be linked here once published.";
+  $("foot").textContent = "Tasks, split and prompts: r2llab/GTTA, commit 24ba304. All results on this page come from this reproduction's saved runs.";
 
   // ---- key numbers ----
   const S = D.sa_agent_summary;
@@ -145,7 +140,7 @@
   ];
   for (const [k, v, n, tip] of tiles) { const d = el("div", { class: "stat" }), kk = el("div", { class: "k term", "data-tip": tip }, k); d.append(kk, el("div", { class: "v" }, v), el("div", { class: "n" }, n)); $("tiles").append(d); }
   const kv = $("sidekv");
-  [["median ‖δ‖, released code", medP.toFixed(3), TIPS.delta], ["median ‖δ‖, exact gradient", medE.toFixed(2), TIPS.delta], ["gradient below ε (released)", "100%", TIPS.eps], ["Spearman with length", "−0.99", TIPS.spearman]]
+  [["median ‖δ‖, released → exact", medP.toFixed(3) + " → " + medE.toFixed(2), TIPS.delta], ["gradient coordinates below ε", "100%", TIPS.eps]]
     .forEach(([k, v, tip]) => { kv.append(el("span", { class: "term", "data-tip": tip }, k), el("b", {}, v)); });
 
   let cur = 0, variant = "paper", variant2 = "exact";
@@ -279,11 +274,8 @@
     const st = $("stats"); st.innerHTML = "";
     const stat = (k, val, tip) => st.append(el("span", tip ? { class: "term", "data-tip": tip } : {}, k), el("b", {}, val));
     stat("‖δ‖ (" + VAR[variant].label + ")", v.norm.toFixed(v.norm < 1 ? 3 : 2), TIPS.delta);
-    stat("gradient coordinates below ε", Math.round(100 * v.below_eps) + "%", TIPS.eps);
     stat("Δ mean log-prob, correct call", fmt(v.d_gold, 4), TIPS.anslp);
-    stat("prompt loss before → after", v.loss[0].toFixed(4) + " → " + v.loss[1].toFixed(4), TIPS.loss);
     if (variant === "paper" && t.best) stat("same at lr 1.0 × 3 (‖δ‖ " + t.best.norm.toFixed(2) + ")", fmt(t.best.d_gold, 4), "The released code at the paper's best 14B setting: learning rate 1.0, 3 Adam steps.");
-    if (variant === "paper") stat("baseline: boost every prompt token (α = 0.25)", fmt(t.copy, 4), TIPS.copy);
     const bars = $("bars"); bars.innerHTML = "";
     const head = el("thead"), hr = el("tr"); [["token", ""], ["b", "barcell"], ["", "num"]].forEach(([h, c]) => hr.append(el("th", { class: c }, h))); head.append(hr); bars.append(head);
     const body = el("tbody"); bars.append(body);
@@ -295,24 +287,6 @@
       if (inA) c1.append(el("span", { class: "badge gold" }, "in answer"));
       else if (!inP) c1.append(el("span", { class: "badge" }, "not in prompt"));
       tr.append(c1, c2, c3); body.append(tr);
-    }
-    const oc = $("outc"); oc.innerHTML = "";
-    const s = t.success;
-    const oh = el("thead"), ohr = el("tr"); ["run", "result"].forEach(h => ohr.append(el("th", {}, h))); oh.append(ohr); oc.append(oh);
-    const ob = el("tbody"); oc.append(ob);
-    const row = (name, ok, note) => {
-      const tr = el("tr"), c = el("td", { class: "nowrap" });
-      if (ok == null) c.textContent = "–"; else c.append(el("span", { class: ok ? "ok" : "no" }, ok ? "solved" : "not solved"));
-      const n = el("td"); n.append(el("div", {}, name)); if (note) n.append(el("div", { class: "small muted" }, note));
-      if (/vLLM/.test(note || "")) n.setAttribute("data-tip", TIPS.vllm); else if (/PyTorch|SA/.test(name + (note || ""))) n.setAttribute("data-tip", TIPS.pytorch);
-      tr.append(n, c); ob.append(tr);
-    };
-    if (s) {
-      row("No adaptation", s.pt_none, "PyTorch loop, reference for SA");
-      row("SA, released code, lr 0.1 × 1", s.sa01, s.sa01_changed ? "SA changed at least one generated token" : "SA changed no token: identical run");
-      row("SA, released code, lr 1.0 × 3", s.sa10, s.sa10_changed ? "SA changed at least one generated token" : "SA changed no token");
-      row("No adaptation", s.vllm_none, "vLLM, reference for DG");
-      row("DG rules in the prompt", s.vllm_dg, "vLLM, 133 rules from self-exploration");
     }
     drawScatter();
   }
