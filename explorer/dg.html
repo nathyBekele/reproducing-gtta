@@ -146,6 +146,7 @@
 </main>
 
 <script>
+if (!window.UI) { document.querySelector("main").className = ""; document.querySelector("main").insertAdjacentHTML("afterbegin", '<div class="statecard error" role="alert"><div class="sc-title">This page didn\'t finish loading.</div><div class="sc-detail">Part of the site is out of date in your browser. Reloading the page fixes it.</div><div class="sc-actions"><button class="btn primary" onclick="location.reload()">Reload page</button></div></div>'); throw new Error("site.js missing"); }
 UI.bootPage("dg_data.js", "DG_DATA", function () {
   const D = window.DG_DATA, T = D.tasks, E = D.episodes, TIPS = window.TIPS;
   const $ = (id) => document.getElementById(id);

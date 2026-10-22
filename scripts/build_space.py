@@ -29,6 +29,24 @@ copies = {
 for src, dst in copies.items():
     shutil.copyfile(src, dst)
     print(f"{src.relative_to(ROOT)} → {dst.relative_to(ROOT)}")
+# Cache busting: tag each asset reference with a short content hash, so a returning visitor's browser
+# never pairs a new page with an old cached site.js / site.css / data file.
+import hashlib
+import re
+
+def _v(name):
+    return hashlib.md5((STATIC / name).read_bytes()).hexdigest()[:10]
+
+js = (STATIC / "site.js").read_text()      # site.js loads tracker.js itself
+(STATIC / "site.js").write_text(js.replace('s.src = "tracker.js"', f's.src = "tracker.js?v={_v("tracker.js")}"'))
+ASSETS = ["site.js", "site.css", "tracker.js", "dg_data.js", "data.js", "favicon.svg"]
+for page in ["index.html", "try.html", "dg.html", "404.html"]:
+    f = STATIC / page
+    html = f.read_text()
+    for name in ASSETS:
+        html = re.sub(r'(?<![\w.-])' + re.escape(name) + r'(?=["\'])', f"{name}?v={_v(name)}", html)
+    f.write_text(html)
+print("asset versions added")
 assert (SPACE / "data" / "tasks.json").exists(), "run scripts/export_live_tasks.py first"
 assert not (STATIC / "config.js").exists(), "config.js is served by app.py; don't ship a static one"
 print("space/ ready")

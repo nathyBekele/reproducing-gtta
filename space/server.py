@@ -285,4 +285,17 @@ def dg_page():
     return FileResponse(STATIC / "dg.html")
 
 
+@app.middleware("http")
+async def _cache_headers(req: Request, call_next):
+    resp = await call_next(req)
+    path = req.url.path
+    if path.startswith("/api/") or path == "/config.js":
+        resp.headers.setdefault("Cache-Control", "no-store")
+    elif "v=" in req.url.query:
+        resp.headers["Cache-Control"] = "public, max-age=31536000, immutable"   # versioned: content never changes
+    else:
+        resp.headers["Cache-Control"] = "no-cache"                               # always check for a newer copy
+    return resp
+
+
 app.mount("/", StaticFiles(directory=STATIC), name="static")
