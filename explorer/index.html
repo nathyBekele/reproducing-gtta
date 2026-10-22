@@ -44,11 +44,11 @@
   <div class="tb-actions"><a class="btn report-btn" href="report.pdf" data-tip="Open the 2-page report"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg><span>Report</span></a></div>
 </div></div>
 
-<main>
+<main class="is-loading" aria-busy="true">
   <div class="hero">
     <div>
       <h1>Reproducing GTTA on BFCLv3</h1>
-      <p class="paper">An independent reproduction of <i>Test-Time Adaptation for LLM Agents via Environment Interaction</i> (GTTA; Chen et al., ICLR 2026), with <span id="model"></span> on <span id="bench"></span>.</p>
+      <p class="paper">An independent reproduction of <i>Test-Time Adaptation for LLM Agents via Environment Interaction</i> (GTTA; Chen et al., ICLR 2026), with <span id="model">Qwen2.5-14B-Instruct (bf16)</span> on <span id="bench">BFCLv3 multi-turn base (GTTA split, 200 tasks)</span>.</p>
     </div>
     <div class="actions"><a class="btn primary" href="try" style="text-decoration:none">Open the SA Inspector (live) →</a><a class="btn" href="dg" style="text-decoration:none;color:var(--ink)">DG Inspector</a></div>
   </div>
@@ -115,9 +115,8 @@
 
   <p class="foot" id="foot"></p>
 </main>
-<script src="data.js"></script>
 <script>
-(function () {
+UI.bootPage("data.js", "EXPLORER_DATA", function () {
   const D = window.EXPLORER_DATA, T = D.tasks;
   const $ = (id) => document.getElementById(id);
   const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
@@ -316,7 +315,7 @@
   window.addEventListener("resize", drawScatter);
   window.addEventListener("themechange", () => { drawLegend1(); renderTask(); renderFreq(); });
   select(0); renderFreq();
-})();
+});
 </script>
 </body>
 </html>

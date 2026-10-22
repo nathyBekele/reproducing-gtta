@@ -25,7 +25,8 @@ from pathlib import Path
 
 import httpx
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import FileResponse, JSONResponse, Response
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.staticfiles import StaticFiles
 
 HERE = Path(__file__).resolve().parent
@@ -43,6 +44,40 @@ WARM_EVERY_S = 60          # at most one wake-up call per model per minute, what
 MODEL_LABELS = {"small": "Qwen2.5-1.5B-Instruct (GPU)", "large": "Qwen2.5-14B-Instruct (GPU, the paper's model)"}
 
 app = FastAPI(docs_url=None, redoc_url=None)
+
+
+# ---------------- error pages: friendly HTML for pages, JSON {"detail"} for the API ----------------
+def _wants_html(req: Request):
+    return not req.url.path.startswith("/api/") and "text/html" in req.headers.get("accept", "")
+
+
+@app.exception_handler(StarletteHTTPException)
+async def _http_error(req: Request, exc: StarletteHTTPException):
+    if _wants_html(req) and exc.status_code == 404 and (STATIC / "404.html").exists():
+        return HTMLResponse((STATIC / "404.html").read_text(), status_code=404)
+    return JSONResponse({"detail": exc.detail if isinstance(exc.detail, str) else "Error"}, status_code=exc.status_code)
+
+
+@app.exception_handler(Exception)
+async def _server_error(req: Request, exc: Exception):
+    if _wants_html(req):
+        return HTMLResponse("<!doctype html><meta charset=utf-8><title>Something went wrong</title>"
+                            "<p style='font:15px system-ui;margin:40px'>Something went wrong on the server. "
+                            "<a href='/'>Go to the results</a> or reload in a moment.</p>", status_code=500)
+    return JSONResponse({"detail": "Something went wrong on the server. Please try again."}, status_code=500)
+
+
+async def _body(req: Request):
+    """Parse a JSON object body; bad or missing JSON becomes a clear 400 instead of a crash."""
+    try:
+        b = await req.json()
+    except Exception:  # noqa: BLE001
+        b = None
+    if b is None:
+        return {}
+    if not isinstance(b, dict):
+        raise HTTPException(400, "Expected a JSON object.")
+    return b
 
 # ---------------- limits ----------------
 _hits = defaultdict(deque)
@@ -165,7 +200,7 @@ def task(task_id: str):
 @app.post("/api/warm")
 async def warm(req: Request):
     """Start the model in the background. Returns a job id the page can poll to show 'ready'."""
-    body = await req.json()
+    body = await _body(req)
     if BACKEND == "local":
         job = "local-warm"
         if job not in _jobs:
@@ -193,15 +228,26 @@ async def warm(req: Request):
 
 @app.post("/api/run")
 async def run(req: Request):
-    body = await req.json()
-    prompt, answer = str(body.get("prompt", "")), str(body.get("answer", ""))
+    body = await _body(req)
+    prompt, answer = str(body.get("prompt") or ""), str(body.get("answer") or "")
+    if len(prompt.strip()) < 20:
+        raise HTTPException(400, "Please enter a longer text (at least 20 characters).")
     if len(prompt) > 60000 or len(answer) > 4000:
         raise HTTPException(400, "Input too long for this demo (prompt ≤ 60k characters, answer ≤ 4k).")
+    variant = body.get("variant", "paper")
+    if variant not in ("paper", "mask", "exact"):
+        raise HTTPException(400, "Unknown gradient variant.")
+    try:
+        lr, steps = float(body.get("lr", 0.1)), int(body.get("steps", 1))
+    except (TypeError, ValueError):
+        raise HTTPException(400, "Learning rate and steps must be numbers.")
+    if lr != lr:  # NaN
+        raise HTTPException(400, "Learning rate must be a number.")
     msg = _allow(_client_ip(req))
     if msg:
         return JSONResponse({"detail": msg}, status_code=429)
-    args = {"prompt": prompt, "answer": answer, "variant": body.get("variant", "paper"),
-            "lr": min(max(float(body.get("lr", 0.1)), 1e-4), 10.0), "steps": max(1, min(int(body.get("steps", 1)), 5)),
+    args = {"prompt": prompt, "answer": answer, "variant": variant,
+            "lr": min(max(lr, 1e-4), 10.0), "steps": max(1, min(steps, 5)),
             "generate": bool(body.get("generate", False)), "max_new": 96}
     if BACKEND == "local":
         return {"job": _local_submit(args)}
@@ -217,10 +263,10 @@ async def result(job: str):
     if job.startswith("local-"):
         j = _jobs.get(job)
         if not j:
-            raise HTTPException(404, "unknown job")
+            raise HTTPException(404, "This run was lost, probably because the server restarted. Please run it again.")
         return {k: v for k, v in j.items() if k != "t"}
     if BACKEND == "local" or not job.startswith("fc-"):
-        raise HTTPException(404, "unknown job")
+        raise HTTPException(404, "This run was lost, probably because the server restarted. Please run it again.")
     return await _gateway("result", {"call_id": job})
 
 

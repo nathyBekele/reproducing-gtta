@@ -399,14 +399,20 @@ onReady(function () { window.tipify(); });
     ui.close.focus({ preventScroll: true });
     if (url !== href) {
       url = href; doc = null; zoom = 1;
-      ui.body.innerHTML = '<div class="pdfv-msg">Loading the report…</div>';
+      ui.body.innerHTML = '<div class="pdfv-loading" role="status" aria-label="Loading the report"><div class="skel pdfv-skel"></div><div class="skel pdfv-skel"></div></div>';
       try {
         await loadLib();
         doc = await lib.getDocument(href).promise;
         ui.title.textContent = "Report · " + doc.numPages + " page" + (doc.numPages > 1 ? "s" : "");
       } catch (e) {
         url = null;
-        ui.body.innerHTML = '<div class="pdfv-msg">Couldn\'t display the report here. <a href="' + href + '" target="_blank" rel="noopener">Open it in a new tab</a>.</div>';
+        ui.body.innerHTML = "";
+        var box = document.createElement("div"); box.className = "pdfv-msg";
+        box.append(window.UI.stateCard({ kind: "error", title: "Couldn't display the report here.",
+          detail: navigator.onLine === false ? "You appear to be offline." : "The viewer or the file didn't load.",
+          actions: [{ label: "Try again", primary: true, onClick: function () { show(href); } }, { label: "Open in a new tab", href: href }] }));
+        var nt = box.querySelector("a.btn"); if (nt) { nt.target = "_blank"; nt.rel = "noopener"; }
+        ui.body.append(box);
         return;
       }
     }
@@ -461,3 +467,136 @@ Object.assign(window.TIPS, {
   dgloss: "Tasks where no adaptation passes in more runs than DG does.",
   selfexplore: "As in the paper's self-exploration variant, Qwen2.5-14B explored, wrote the rules and filtered them itself (the paper's main setup used GPT-4.1, GPT-4o and o3).",
 });
+
+// ---------- loading and error states (shared by all pages) ----------
+(function () {
+  var UI = window.UI = {};
+
+  // Load a data script (e.g. data.js) that defines window[globalName]. Retries once, times out, then rejects.
+  UI.loadScript = function (src, globalName, opts) {
+    opts = opts || {};
+    var tries = opts.tries || 2, timeout = opts.timeout || 45000;
+    function once(attempt) {
+      return new Promise(function (ok, fail) {
+        if (globalName && window[globalName]) return ok(window[globalName]);
+        var s = document.createElement("script"), done = false;
+        s.src = src + (attempt > 1 ? (src.indexOf("?") < 0 ? "?" : "&") + "r=" + Date.now() : "");
+        var timer = setTimeout(function () { finish(new Error("timeout")); }, timeout);
+        function finish(err) {
+          if (done) return; done = true; clearTimeout(timer);
+          if (err) { s.remove(); fail(err); }
+          else if (globalName && !window[globalName]) fail(new Error("empty"));
+          else ok(globalName ? window[globalName] : true);
+        }
+        s.onload = function () { finish(null); };
+        s.onerror = function () { finish(new Error("network")); };
+        document.body.appendChild(s);
+      });
+    }
+    function run(attempt) {
+      return once(attempt).catch(function (e) {
+        if (attempt < tries && navigator.onLine !== false) return new Promise(function (r) { setTimeout(r, 1200 * attempt); }).then(function () { return run(attempt + 1); });
+        throw e;
+      });
+    }
+    return run(1);
+  };
+
+  // fetch() with a timeout; network failures and timeouts throw an Error whose .kind is "offline" | "timeout" | "network".
+  UI.fetch = function (url, init, ms) {
+    var ctl = typeof AbortController !== "undefined" ? new AbortController() : null;
+    var timer = ctl ? setTimeout(function () { ctl.abort(); }, ms || 30000) : null;
+    return fetch(url, Object.assign({}, init || {}, ctl ? { signal: ctl.signal } : {}))
+      .then(function (r) { clearTimeout(timer); return r; }, function (e) {
+        clearTimeout(timer);
+        var err = new Error("network"); err.kind = navigator.onLine === false ? "offline" : (e && e.name === "AbortError") ? "timeout" : "network";
+        throw err;
+      });
+  };
+  // GET JSON with retries on network errors and 5xx. Rejects with Error(.detail, .status).
+  UI.getJSON = function (url, opts) {
+    opts = opts || {};
+    var tries = opts.tries || 3;
+    function attempt(n) {
+      return UI.fetch(url, null, opts.timeout || 20000).then(function (r) {
+        return r.json().catch(function () { return {}; }).then(function (j) {
+          if (r.ok) return j;
+          var e = new Error(j.detail || ("Error " + r.status)); e.status = r.status; e.detail = j.detail; throw e;
+        });
+      }).catch(function (e) {
+        var transient = !e.status || e.status >= 500;
+        if (transient && n < tries && navigator.onLine !== false) return new Promise(function (r) { setTimeout(r, 800 * n); }).then(function () { return attempt(n + 1); });
+        throw e;
+      });
+    }
+    return attempt(1);
+  };
+  UI.describe = function (e) {
+    if (!e) return "Something went wrong.";
+    if (e.kind === "offline" || navigator.onLine === false) return "You appear to be offline. Check your connection and try again.";
+    if (e.kind === "timeout") return "The server took too long to answer.";
+    if (e.kind === "network") return "Couldn't reach the server.";
+    return e.detail || e.message || "Something went wrong.";
+  };
+
+  // A small card for errors or empty results, with optional buttons: [{label, onClick, primary}]
+  UI.stateCard = function (o) {
+    var d = document.createElement("div");
+    d.className = "statecard" + (o.kind ? " " + o.kind : "") + (o.compact ? " compact" : "");
+    d.setAttribute("role", o.kind === "error" ? "alert" : "status");
+    var t = document.createElement("div"); t.className = "sc-title"; t.textContent = o.title || ""; d.append(t);
+    if (o.detail) { var p = document.createElement("div"); p.className = "sc-detail"; p.textContent = o.detail; d.append(p); }
+    if (o.actions && o.actions.length) {
+      var row = document.createElement("div"); row.className = "sc-actions";
+      o.actions.forEach(function (a) {
+        var b = document.createElement(a.href ? "a" : "button");
+        b.className = "btn" + (a.primary ? " primary" : ""); b.textContent = a.label;
+        if (a.href) { b.href = a.href; } else { b.type = "button"; b.onclick = a.onClick; }
+        row.append(b);
+      });
+      d.append(row);
+    }
+    return d;
+  };
+
+  // Page-level loading: <main class="is-loading"> shows shimmer placeholders until UI.pageReady() / UI.pageFailed().
+  UI.pageReady = function () {
+    var m = document.querySelector("main"); if (m) { m.classList.remove("is-loading"); m.removeAttribute("aria-busy"); }
+    var c = document.getElementById("pageerror"); if (c) c.remove();
+  };
+  UI.pageFailed = function (title, detail, retry) {
+    var m = document.querySelector("main"); if (!m) return;
+    m.classList.remove("is-loading"); m.classList.add("is-failed"); m.removeAttribute("aria-busy");
+    var old = document.getElementById("pageerror"); if (old) old.remove();
+    var actions = [];
+    if (retry) actions.push({ label: "Try again", primary: true, onClick: function () { m.classList.remove("is-failed"); m.classList.add("is-loading"); m.setAttribute("aria-busy", "true"); card.remove(); retry(); } });
+    actions.push({ label: "Reload page", primary: !retry, onClick: function () { location.reload(); } });
+    var card = UI.stateCard({ kind: "error", title: title, detail: detail, actions: actions });
+    card.id = "pageerror";
+    var anchor = m.querySelector(".stats, #tiles, section");
+    if (anchor) anchor.parentNode.insertBefore(card, anchor); else m.prepend(card);
+  };
+  // Load a page's data file, then run its init. Errors in either show a card with Try again.
+  UI.bootPage = function (src, globalName, init) {
+    var m = document.querySelector("main"); if (m) { m.classList.add("is-loading"); m.setAttribute("aria-busy", "true"); }
+    function go() {
+      UI.loadScript(src, globalName).then(function (data) {
+        try { init(data); UI.pageReady(); }
+        catch (e) { console.error(e); UI.pageFailed("Couldn't display this page.", "The data loaded but something went wrong while drawing it. Reloading usually fixes it.", null); }
+      }, function (e) {
+        UI.pageFailed("Couldn't load the results.", navigator.onLine === false ? "You appear to be offline. Reconnect and try again." : "The data file didn't arrive (" + (e && e.message === "timeout" ? "it took too long" : "network error") + ").", go);
+      });
+    }
+    go();
+  };
+
+  // Offline banner
+  function banner() {
+    var b = document.getElementById("netbanner");
+    if (navigator.onLine === false) {
+      if (!b) { b = document.createElement("div"); b.id = "netbanner"; b.setAttribute("role", "status"); b.textContent = "You're offline. Saved results still work; live runs need a connection."; document.body.append(b); }
+    } else if (b) b.remove();
+  }
+  window.addEventListener("online", banner); window.addEventListener("offline", banner);
+  onReady(banner);
+})();

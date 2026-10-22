@@ -310,3 +310,41 @@ svg text { font-size: 12px; }
   .btn, .select, .dd-trigger { min-height: 40px; }
   .seg button { height: 38px; }
 }
+
+/* ---------- loading and error states ---------- */
+@keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+.skel, main.is-loading .stats:empty, main.is-loading .chartwrap, main.is-loading table:empty, main.is-loading .toks:empty,
+main.is-loading .sk-block:empty, main.is-loading .dd-trigger, main.is-loading select.select {
+  background: linear-gradient(90deg, var(--zebra) 25%, var(--hover) 37%, var(--zebra) 63%) !important;
+  background-size: 200% 100% !important; animation: shimmer 1.4s ease-in-out infinite; border-radius: var(--radius);
+  border-color: transparent !important; color: transparent !important;
+}
+main.is-loading .stats:empty { display: block; min-height: 78px; }
+main.is-loading .chartwrap { min-height: 260px; }
+main.is-loading .chartwrap > * { visibility: hidden; }
+main.is-loading table:empty { display: block; min-height: 220px; width: 100%; }
+main.is-loading .toks:empty { display: block; min-height: 64px; }
+main.is-loading .sk-block:empty { display: block; min-height: 140px; }
+main.is-loading .dd-trigger, main.is-loading select.select { pointer-events: none; }
+main.is-loading button, main.is-loading .seg, main.is-loading input { pointer-events: none; }
+main.is-failed .stats:empty, main.is-failed .chartwrap, main.is-failed table:empty, main.is-failed .toks:empty, main.is-failed .sk-block:empty { display: none; }
+@media (prefers-reduced-motion: reduce) { .skel, main.is-loading * { animation: none !important; } }
+
+.statecard { border: 1px solid var(--rule); background: var(--panel); border-radius: var(--radius); padding: 14px 16px; margin: 10px 0 14px; }
+.statecard.error { border-color: color-mix(in srgb, var(--bad) 45%, var(--rule)); }
+.statecard .sc-title { font-weight: 600; color: var(--ink); }
+.statecard.error .sc-title { color: var(--bad); }
+.statecard .sc-detail { color: var(--ink-2); font-size: 13px; margin-top: 2px; }
+.statecard .sc-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.statecard.compact { padding: 10px 12px; margin: 8px 0; }
+.statecard.compact .sc-actions { margin-top: 8px; }
+.btn .spin, .spin { display: inline-block; width: 12px; height: 12px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin .8s linear infinite; vertical-align: -1px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spin { animation-duration: 2.4s; } }
+#netbanner { position: fixed; left: 50%; transform: translateX(-50%); top: calc(var(--top-h, 49px) + 8px); z-index: 60; background: var(--ink); color: var(--bg); font-size: 13px; padding: 7px 14px; border-radius: 99px; box-shadow: 0 4px 16px var(--shadow); max-width: calc(100% - 24px); text-align: center; }
+td.emptyrow { color: var(--ink-2); padding: 18px 10px !important; text-align: center; }
+.linkbtn { background: none; border: 0; padding: 0; color: var(--accent); cursor: pointer; font: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.pdfv-loading { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 16px 0; }
+.pdfv-skel { width: min(816px, 92%); aspect-ratio: 8.5 / 11; }
+.pdfv-msg .statecard { max-width: 460px; margin: 0 auto; text-align: left; }
+main.is-failed section, main.is-failed .foot, main.is-failed .stats:empty { display: none; }

@@ -79,7 +79,7 @@
   <div class="tb-actions"><a class="btn report-btn" href="report.pdf" data-tip="Open the 2-page report"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg><span>Report</span></a></div>
 </div></div>
 
-<main>
+<main class="is-loading" aria-busy="true">
   <div class="hero">
     <h1>DG Inspector <span class="pill" style="vertical-align:4px">saved runs</span></h1>
     <p><span class="term" data-tipkey="dg">Dynamics Grounding (DG)</span> lets the agent explore the tools first, writes short rules about how they behave, and adds them to the prompt. Everything here comes from my saved runs, where <span class="term" data-tipkey="selfexplore">Qwen-14B wrote its own rules</span>.</p>
@@ -116,7 +116,7 @@
     </div>
     <div class="meta small muted" id="meta"></div>
     <div class="verdicts" id="verdicts"></div>
-    <div id="turns"></div>
+    <div id="turns" class="sk-block"></div>
     <details><summary id="taskrules-sum">Rules that were in this task's prompt</summary><div class="scrollbox" style="max-height:300px"><table class="t ruletable" id="taskrules"></table></div></details>
   </section>
 
@@ -145,9 +145,8 @@
   <p class="foot">Source: GTTA's BFCLv3 tasks, exploration goals and prompts (r2llab/GTTA, commit 24ba304). Model outputs are shortened to about 700 characters each; tool replies during evaluation weren't saved, so only the agent's calls are shown for tasks.</p>
 </main>
 
-<script src="dg_data.js"></script>
 <script>
-(function () {
+UI.bootPage("dg_data.js", "DG_DATA", function () {
   const D = window.DG_DATA, T = D.tasks, E = D.episodes, TIPS = window.TIPS;
   const $ = (id) => document.getElementById(id);
   const el = (tag, attrs, text) => { const e = document.createElement(tag); for (const k in (attrs || {})) e.setAttribute(k, attrs[k]); if (text != null) e.textContent = text; return e; };
@@ -209,6 +208,14 @@
     if (q) rules = rules.filter(r => (r.a + " " + r.d + " " + r.s + " " + r.cls).toLowerCase().includes(q));
     $("rulecount").textContent = rules.length + " rule" + (rules.length === 1 ? "" : "s") + (api ? " · " + api : "");
     ruleRows($("ruletable"), rules, !api);
+    if (!rules.length) {
+      const tr = el("tr"), td = el("td", { colspan: "3", class: "emptyrow" });
+      td.append(document.createTextNode(q ? "No rules match “" + $("rulesearch").value.trim() + "”" + (api ? " in " + api : "") + ". " : "No rules for this API. "));
+      const clr = el("button", { type: "button", class: "linkbtn" }, q ? "Clear the search" : "Show all APIs");
+      clr.onclick = () => { if (q) $("rulesearch").value = ""; else api = null; renderApis(); renderRules(); };
+      td.append(clr); tr.append(td);
+      ($("ruletable").querySelector("tbody") || $("ruletable")).append(tr);
+    }
   }
   $("rulesearch").addEventListener("input", renderRules);
   renderApis(); renderRules();
@@ -322,7 +329,7 @@
     sec.classList.remove("flash"); void sec.offsetWidth; sec.classList.add("flash");
   }
   renderEpisode();
-})();
+});
 </script>
 </body>
 </html>

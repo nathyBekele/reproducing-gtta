@@ -15,6 +15,7 @@ STATIC.mkdir(parents=True, exist_ok=True)
 copies = {
     ROOT / "explorer" / "index.html": STATIC / "index.html",
     ROOT / "explorer" / "try.html": STATIC / "try.html",
+    ROOT / "explorer" / "404.html": STATIC / "404.html",
     ROOT / "explorer" / "dg.html": STATIC / "dg.html",
     ROOT / "explorer" / "dg_data.js": STATIC / "dg_data.js",
     ROOT / "explorer" / "data.js": STATIC / "data.js",

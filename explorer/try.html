@@ -35,6 +35,11 @@
 .gpustate.wait { color: var(--muted); }
 .status { font-size: 12.5px; color: var(--ink-2); min-height: 18px; margin-top: 8px; }
 .status.error { color: var(--bad); }
+.runrow { display: flex; gap: 8px; }
+.runrow #runbtn { flex: 1; }
+#results.stale { opacity: .45; pointer-events: none; transition: opacity .2s; }
+.skel-line { display: block; height: 14px; margin: 8px 0; }
+#taskreq.skel, #taskgold.skel { min-height: 40px; }
 .runrow { display: flex; gap: 10px; align-items: center; }
 .runrow .btn { flex: 1; justify-content: center; }
 .intro { margin-bottom: 14px; }
@@ -94,8 +99,9 @@
       </div>
 
       <div class="block">
-        <div class="runrow"><button class="btn primary lg" id="runbtn">Run SA</button></div>
+        <div class="runrow"><button class="btn primary lg" id="runbtn">Run SA</button><button class="btn lg hidden" id="stopbtn" type="button" data-tip="Stop waiting for this run. It may still finish on the server, but the page won't wait for it.">Stop</button></div>
         <div class="status" id="status" role="status" aria-live="polite"></div>
+        <div id="runerr"></div>
         <p class="small muted" id="backendnote" style="margin:6px 0 0"></p>
       </div>
     </aside>
@@ -105,6 +111,12 @@
       <div class="panel empty" id="empty">
         <b>Press Run SA</b> to see how big SA's step is at several prompt lengths, which words it boosts, and how the correct answer's likelihood changes.
         <p class="small muted" style="margin:8px 0 0">Tip: switch between <b>Released</b> and <b>Exact</b>. Hover any underlined term for a plain explanation.</p>
+      </div>
+
+      <div id="running" class="hidden" aria-hidden="true">
+        <div class="block"><div class="skel" style="height:78px"></div></div>
+        <div class="block panel"><div class="skel" style="height:16px;width:55%;margin-bottom:12px"></div><div class="skel" style="height:240px"></div></div>
+        <div class="grid2 block"><div class="panel"><div class="skel" style="height:220px"></div></div><div class="panel"><div class="skel" style="height:220px"></div></div></div>
       </div>
 
       <div id="results" class="hidden">
@@ -152,13 +164,15 @@
   const VAR = { paper: { label: "released code", c: "--s-paper", dash: false }, mask: { label: "released code + user mask", c: "--s-mask", dash: true }, exact: { label: "exact gradient", c: "--s-exact", dash: false } };
   const cfg = window.SITE_CONFIG || { models: [], backend: "?" };
   let source = "task", variant = "paper", tasks = [], curTask = null, last = null;
+  let running = false;
 
   // ---- models + backend note ----
   const models = cfg.models || [];
   for (const m of models) $("model").append(el("option", { value: m.id }, m.label));
   window.enhanceSelect($("model")); window.enhanceSelect($("lr")); window.enhanceSelect($("steps"));
   if (cfg.backend === "local") $("hwword").textContent = " on a small model (free CPU)";
-  if (!models.length) { $("backendnote").textContent = "The live backend isn't configured on this server."; $("runbtn").disabled = true; }
+  if (!window.SITE_CONFIG) { $("backendnote").textContent = "Couldn't load the site settings, so live runs are off. Reloading the page usually fixes this."; $("runbtn").disabled = true; }
+  else if (!models.length) { $("backendnote").textContent = "Live runs are switched off on this server right now. The Results and DG Inspector pages still work."; $("runbtn").disabled = true; }
   else $("backendnote").textContent = cfg.backend === "local"
     ? "The model runs on a shared CPU, so each run takes 20–60 seconds."
     : "The model runs on a GPU that starts automatically when this page opens; once it is ready, each run takes a few seconds.";
@@ -173,7 +187,7 @@
     }
   }
   seg($("srcseg"), [["task", "BFCLv3 task"], ["own", "Your own text"]], () => source, (k) => {
-    source = k; $("src-task").classList.toggle("hidden", k !== "task"); $("src-own").classList.toggle("hidden", k !== "own");
+    source = k; $("src-task").classList.toggle("hidden", k !== "task"); $("src-own").classList.toggle("hidden", k !== "own"); $("runerr").innerHTML = ""; setStatus(""); if (typeof updateRunState === "function") updateRunState();
   });
   const TIPS = window.TIPS;
   seg($("varseg"), [["paper", "Released", TIPS.released], ["mask", "Released + mask", TIPS.mask], ["exact", "Exact", TIPS.exact]], () => variant, (k) => { variant = k; });
@@ -183,38 +197,84 @@
     $("ownanswer").value = "[cd(folder='document'), mkdir(dir_name='temp'), mv(source='final_report.pdf', destination='temp')]";
   };
 
-  // ---- tasks ----
+  // ---- tasks (with loading skeletons, errors and retry) ----
+  let taskReq = 0, taskLoading = false;
+  function inlineError(box, title, detail, retry) {
+    box.querySelectorAll(".statecard").forEach(c => c.remove());
+    box.prepend(UI.stateCard({ kind: "error", compact: true, title, detail, actions: retry ? [{ label: "Try again", primary: true, onClick: retry }] : [] }));
+  }
+  function setTaskSkeleton(on) {
+    for (const id of ["taskreq", "taskgold"]) { $(id).classList.toggle("skel", on); if (on) $(id).textContent = ""; }
+  }
   async function loadTasks() {
+    $("src-task").querySelectorAll(".statecard").forEach(c => c.remove());
+    setTaskSkeleton(true); taskLoading = true; updateRunState();
     try {
-      tasks = await (await fetch("api/tasks")).json();
+      tasks = await UI.getJSON("api/tasks");
+      if (!Array.isArray(tasks) || !tasks.length) throw Object.assign(new Error("empty"), { detail: "The task list is empty." });
+      $("taskpick").innerHTML = "";
       for (const t of tasks) { const o = el("option", { value: t.id }, "Task " + t.id.replace("multi_turn_base_", "#") + " · " + t.classes.join(", ")); o.dataset.sub = t.request; $("taskpick").append(o); }
-      window.enhanceSelect($("taskpick"), { search: true, wide: true, placeholder: "Search by number, tool or request…" });
+      if ($("taskpick")._dd) $("taskpick")._dd.sync && $("taskpick")._dd.sync();
+      else window.enhanceSelect($("taskpick"), { search: true, wide: true, placeholder: "Search by number, tool or request…" });
       $("taskpick").onchange = () => pickTask($("taskpick").value);
-      if (tasks.length) pickTask(tasks[0].id);
-    } catch (e) { $("taskreq").textContent = "Couldn't load the task list."; }
+      await pickTask(tasks[0].id);
+    } catch (e) {
+      setTaskSkeleton(false); taskLoading = false; updateRunState();
+      inlineError($("src-task"), "Couldn't load the BFCL tasks.", UI.describe(e) + " You can still use “Your own text”.", loadTasks);
+    }
   }
   async function pickTask(id) {
-    const t = await (await fetch("api/task/" + encodeURIComponent(id))).json();
-    curTask = t;
-    $("taskreq").textContent = "“" + t.request + "”";
-    $("taskgold").textContent = t.answer;
-    $("taskprompt").value = t.prompt;
+    const my = ++taskReq;                       // ignore answers to older clicks
+    curTask = null; taskLoading = true; updateRunState();
+    $("src-task").querySelectorAll(".statecard").forEach(c => c.remove());
+    setTaskSkeleton(true); $("taskprompt").value = "";
+    try {
+      const t = await UI.getJSON("api/task/" + encodeURIComponent(id));
+      if (my !== taskReq) return;
+      curTask = t;
+      setTaskSkeleton(false);
+      $("taskreq").textContent = "“" + t.request + "”";
+      $("taskgold").textContent = t.answer;
+      $("taskprompt").value = t.prompt;
+    } catch (e) {
+      if (my !== taskReq) return;
+      setTaskSkeleton(false);
+      inlineError($("src-task"), "Couldn't load this task.", UI.describe(e), () => pickTask(id));
+    } finally {
+      if (my === taskReq) { taskLoading = false; updateRunState(); }
+    }
   }
   loadTasks();
 
-  // ---- jobs: submit, then poll ----
+  // ---- jobs: submit, then poll (tolerates short network drops) ----
   const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+  let cancelled = false;
   async function poll(job, onTick, maxMs) {
     const t0 = Date.now();
+    let misses = 0;
     while (Date.now() - t0 < maxMs) {
-      const r = await fetch("api/result/" + encodeURIComponent(job));
-      const j = await r.json().catch(() => ({}));
+      if (cancelled) return { status: "cancelled" };
+      let r, j;
+      try {
+        r = await UI.fetch("api/result/" + encodeURIComponent(job), null, 30000);
+        j = await r.json().catch(() => ({}));
+      } catch (e) {
+        if (++misses >= 6) return { status: "error", retry: true, detail: navigator.onLine === false ? "You went offline while the run was going." : "Lost contact with the server while waiting for the result." };
+        if (onTick) onTick(Date.now() - t0, true);
+        await sleep(Math.min(2000 * misses, 6000)); continue;
+      }
+      if (r.status === 404) return { status: "error", retry: true, detail: "This run was lost, probably because the server restarted. Please run it again." };
+      if (r.status >= 500) {
+        if (++misses >= 6) return { status: "error", retry: true, detail: j.detail || "The server kept failing while waiting for the result." };
+        await sleep(Math.min(2000 * misses, 6000)); continue;
+      }
       if (!r.ok) return { status: "error", detail: j.detail || ("Error " + r.status) };
+      misses = 0;
       if (j.status !== "running") return j;
-      if (onTick) onTick(Date.now() - t0);
+      if (onTick) onTick(Date.now() - t0, false);
       await sleep(2000);
     }
-    return { status: "error", detail: "Timed out. Please try again." };
+    return { status: "error", retry: true, detail: "This run took too long and was stopped. The server may be busy; please try again." };
   }
 
   // ---- start the model as soon as the page opens (and when the model changes) ----
@@ -223,15 +283,15 @@
     const st = gpu[$("model").value], g = $("gpustate");
     const word = cfg.backend === "local" ? "model" : "GPU";
     g.className = "gpustate " + (st === "ready" ? "ready" : "wait");
-    g.textContent = st === "ready" ? "● " + word + " ready" : st === "waking" ? "○ " + word + " starting…" : st === "error" ? "○ " + word + " unavailable; a run will retry" : "";
+    g.textContent = st === "ready" ? "● " + word + " ready" : st === "waking" ? "○ " + word + " starting…" : st === "error" ? "○ " + word + " didn't start; a run will retry" : "";
   }
   async function wake(model) {
     if (!model || gpu[model] === "waking" || gpu[model] === "ready") return;
     gpu[model] = "waking"; showGpu();
     try {
-      const r = await fetch("api/warm", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ model }) });
-      const j = await r.json();
-      if (!r.ok) throw new Error(j.detail || "warm failed");
+      const r = await UI.fetch("api/warm", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ model }) }, 60000);
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j.job) throw new Error(j.detail || "warm failed");
       const res = await poll(j.job, null, 6 * 60 * 1000);
       gpu[model] = res.status === "done" ? "ready" : "error";
     } catch (e) { gpu[model] = "error"; }
@@ -242,29 +302,71 @@
   if (models.length) wake($("model").value);
 
   // ---- run ----
+  function updateRunState() {
+    const b = $("runbtn");
+    const noBackend = !models.length;
+    const waitingTask = source === "task" && (taskLoading || !curTask);
+    b.disabled = running || noBackend || waitingTask;
+    b.innerHTML = "";
+    if (running) b.append(el("span", { class: "spin", "aria-hidden": "true" }), document.createTextNode(" Running…"));
+    else b.textContent = waitingTask && taskLoading ? "Loading task…" : "Run SA";
+    $("stopbtn").classList.toggle("hidden", !running);
+  }
+  function showRunning(on) {
+    const hasResult = !!last;
+    $("empty").classList.toggle("hidden", on || hasResult);
+    $("running").classList.toggle("hidden", !on || hasResult);
+    $("results").classList.toggle("hidden", !hasResult);
+    $("results").classList.toggle("stale", on && hasResult);
+    if (!on && !hasResult) $("empty").classList.remove("hidden");
+  }
+  function runError(msg, retry) {
+    setStatus("", false);
+    $("runerr").innerHTML = "";
+    $("runerr").append(UI.stateCard({ kind: "error", compact: true, title: "The run didn't finish.", detail: msg,
+      actions: retry ? [{ label: "Try again", primary: true, onClick: () => $("runbtn").click() }] : [] }));
+  }
+  $("stopbtn").onclick = () => { cancelled = true; };
+  window.addEventListener("beforeunload", (e) => { if (running) { e.preventDefault(); e.returnValue = ""; } });
+
   $("runbtn").onclick = async () => {
+    if (running) return;
+    $("runerr").innerHTML = "";
     const prompt = source === "task" ? (curTask && curTask.prompt) : $("ownprompt").value;
     const answer = source === "task" ? (curTask && curTask.answer) : $("ownanswer").value;
-    if (!prompt || prompt.trim().length < 20) { setStatus("Please enter a longer prompt.", true); return; }
+    if (source === "task" && !curTask) { setStatus("The task is still loading.", true); return; }
+    if (!prompt || prompt.trim().length < 20) { setStatus("Please enter a longer text (at least 20 characters).", true); if (source === "own") $("ownprompt").focus(); return; }
+    if (prompt.length > 60000) { setStatus("That text is too long for this demo (60,000 characters max; yours is " + prompt.length.toLocaleString() + ").", true); return; }
+    if ((answer || "").length > 4000) { setStatus("The expected answer is too long (4,000 characters max).", true); return; }
+    if (navigator.onLine === false) { runError("You appear to be offline. Reconnect and try again.", true); return; }
     const body = { prompt, answer, variant, lr: +$("lr").value, steps: +$("steps").value, generate: $("gen").checked, model: $("model").value };
-    $("runbtn").disabled = true;
+    running = true; cancelled = false; updateRunState(); showRunning(true);
     const t0 = Date.now();
     try { window.trackDemoAction("▶️ Ran SA (" + (source === "task" ? curTask.id : "own text, " + prompt.length + " chars") + ", " + VAR[variant].label + ", lr " + body.lr + "×" + body.steps + ", " + body.model + ")"); if (window.clarity) window.clarity("event", "ran_sa_demo"); } catch (e) {}
     try {
-      setStatus("Submitting…");
-      const r = await fetch("api/run", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-      const j = await r.json().catch(() => ({}));
-      if (!r.ok) { setStatus(j.detail || ("Error " + r.status), true); return; }
-      const res = await poll(j.job, (ms) => {
-        const waking = gpu[body.model] !== "ready";
-        setStatus("Running… " + Math.round(ms / 1000) + " s" + (waking && ms > 5000 ? " (the GPU is still starting; this happens only after a few idle minutes)" : ""));
+      setStatus("Sending…");
+      let r, j;
+      try {
+        r = await UI.fetch("api/run", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }, 90000);
+        j = await r.json().catch(() => ({}));
+      } catch (e) { runError(UI.describe(e) + " Your run wasn't started.", true); return; }
+      if (r.status === 429) { runError(j.detail || "Too many runs right now. Please wait a bit.", false); return; }
+      if (!r.ok || !j.job) { runError(j.detail || ("The server answered with error " + r.status + "."), r.status >= 500); return; }
+      const res = await poll(j.job, (ms, reconnecting) => {
+        const sec = Math.round(ms / 1000), waking = gpu[body.model] !== "ready";
+        let msg = "Running… " + sec + " s";
+        if (reconnecting) msg += " (connection hiccup, still waiting)";
+        else if (cfg.backend !== "local" && waking && ms > 5000) msg += " · the GPU is starting up; this happens only after a few idle minutes and takes up to a minute";
+        else if (cfg.backend === "local" && ms > 30000) msg += " · the shared CPU is slow; thanks for waiting";
+        setStatus(msg);
       }, 8 * 60 * 1000);
-      if (res.status !== "done") { setStatus(res.detail || "Something went wrong. Please try again.", true); return; }
+      if (res.status === "cancelled") { setStatus("Stopped waiting. You can run again any time."); return; }
+      if (res.status !== "done" || !res.result) { runError(res.detail || "Something went wrong on the server.", res.retry !== false); return; }
       gpu[body.model] = "ready"; showGpu();
-      last = res.result; render(res.result);
-      setStatus("Done in " + Math.round((Date.now() - t0) / 1000) + " s · " + res.result.model.split("/").pop() + " on " + res.result.device.toUpperCase());
-    } catch (e) { setStatus("Network error. Please try again.", true); }
-    finally { $("runbtn").disabled = false; }
+      try { render(res.result); last = res.result; }
+      catch (e) { console.error(e); runError("The result arrived but couldn't be drawn. Try again, or a different task.", true); return; }
+      setStatus("Done in " + Math.round((Date.now() - t0) / 1000) + " s · " + String(res.result.model || "").split("/").pop() + " on " + String(res.result.device || "").toUpperCase());
+    } finally { running = false; updateRunState(); showRunning(false); }
   };
   function setStatus(msg, err) { const s = $("status"); s.textContent = msg; s.classList.toggle("error", !!err); }
 
