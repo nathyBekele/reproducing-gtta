@@ -301,16 +301,20 @@
     $("anscol").classList.toggle("hidden", !j.answer);
     if (j.answer) {
       const box = $("anstoks"); box.innerHTML = "";
-      const SCALE = 0.5;
+      const niceUp = (x) => { const e = Math.pow(10, Math.floor(Math.log10(x))), m = x / e; return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 5 ? 5 : 10) * e; };
+      const fmtScale = (x) => x >= 0.1 ? x.toFixed(1) : x >= 0.01 ? x.toFixed(2) : x >= 0.001 ? x.toFixed(3) : x.toExponential(0);
+      const ds = j.answer.tokens.map((_, i) => j.answer.logprob_sa[i] - j.answer.logprob_none[i]);
+      const SCALE = niceUp(Math.max(1e-4, ...ds.map(Math.abs)));
       j.answer.tokens.forEach((tok, i) => {
-        const d = j.answer.logprob_sa[i] - j.answer.logprob_none[i], a = Math.min(1, Math.abs(d) / SCALE);
+        const d = ds[i], a = Math.sqrt(Math.min(1, Math.abs(d) / SCALE));   // square root keeps small changes visible
         const s = el("span", { class: "tok", title: showTok(tok) + "  log p " + j.answer.logprob_none[i].toFixed(3) + " → " + j.answer.logprob_sa[i].toFixed(3) + " (" + fmt(d) + ")" }, showTok(tok));
         s.style.background = mix(css("--div-mid"), css(d >= 0 ? "--div-pos" : "--div-neg"), a); if (a > 0.55) s.style.color = css("--bg");
         box.append(s);
       });
       const sc = $("ansscale"); sc.innerHTML = "";
       const ramp = el("span", { class: "ramp" }); ramp.style.background = `linear-gradient(90deg, ${css("--div-neg")}, ${css("--div-mid")}, ${css("--div-pos")})`;
-      sc.append(el("span", {}, "less likely (−0.5)"), ramp, el("span", {}, "more likely (+0.5)"));
+      sc.append(el("span", {}, "less likely (−" + fmtScale(SCALE) + ")"), ramp, el("span", {}, "more likely (+" + fmtScale(SCALE) + ")"),
+        el("span", { class: "term", "data-tip": "The color scale is fitted to this run: its ends are the largest change among the answer's tokens, rounded up, and color strength grows with the square root of the change so small changes stay visible. Compare runs by the numbers, not the colors. Hover a token for its exact numbers." }, "· scale fitted to this run"));
       $("ansmean").textContent = "Mean change per token: " + fmt(j.answer.mean_delta, 4) + " (hover a token for its numbers).";
     }
     $("genbox").classList.toggle("hidden", !j.generation);
